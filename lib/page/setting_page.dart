@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:note/models/font_size_change_notifier.dart';
+import 'package:note/presenter/media_size_presenter.dart';
+import 'package:note/presenter_view/media_size_view.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
@@ -15,12 +17,20 @@ class SettingPage extends StatefulWidget {
   _SettingPageState createState() => _SettingPageState();
 }
 
-class _SettingPageState extends State<SettingPage> {
+class _SettingPageState extends State<SettingPage> implements MediaSizeView {
   late SharedPreferences preferences;
-  late double sizeOfHeight;
-  late double sizeOfWidth;
+  double sizeOfHeight = 0;
+  double sizeOfWidth = 0;
   double sliderValueLabel = 25;
   double sliderValueContent = 18;
+  late MediaSizePresenter mediaSizePresenter;
+
+
+  _SettingPageState() {
+    mediaSizePresenter = MediaSizePresenter();
+    mediaSizePresenter.attachView(this);
+  }
+
 
   @override
   void initState() {
@@ -36,13 +46,13 @@ class _SettingPageState extends State<SettingPage> {
       sliderValueLabel = sizeLabel.toDouble();
       sliderValueContent = sizeContent.toDouble();
     });
+    setSizeOfMedia();
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
         overlays: List.empty());
-    setSizeOfMedia();
     return Scaffold(
       appBar: AppBar(
         title: Text(
@@ -137,7 +147,14 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   setSizeOfMedia() {
-    sizeOfHeight = MediaQuery.of(context).size.height;
-    sizeOfWidth = MediaQuery.of(context).size.width;
+    Size size = mediaSizePresenter.getMediaSize(context);
+  }
+
+  @override
+  onGetMediaSize(Size size) {
+    setState(() {
+      sizeOfHeight = size.height;
+      sizeOfWidth = size.width;
+    });
   }
 }

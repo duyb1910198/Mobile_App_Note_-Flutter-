@@ -6,6 +6,8 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
+import 'package:note/presenter/media_size_presenter.dart';
+import 'package:note/presenter_view/media_size_view.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
@@ -23,7 +25,7 @@ class NoteRecycleBinPage extends StatefulWidget {
   NoteRecycleBinPageState createState() => NoteRecycleBinPageState();
 }
 
-class NoteRecycleBinPageState extends State<NoteRecycleBinPage> {
+class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements MediaSizeView{
   List<Note> notes = [];
   double sizeOfHeight = 0;
   double sizeOfWidth = 0;
@@ -46,6 +48,14 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> {
   late ValueNotifier<bool> isLongPressV;
 
   int noteId = -1;
+
+  late MediaSizePresenter mediaSizePresenter;
+
+
+  NoteRecycleBinPageState() {
+    mediaSizePresenter = MediaSizePresenter();
+    mediaSizePresenter.attachView(this);
+  }
 
   @override
   void initState() {
@@ -139,8 +149,9 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> {
   }
 
   setSizeOfMedia() {
-    sizeOfHeight = MediaQuery.of(context).size.height;
-    sizeOfWidth = MediaQuery.of(context).size.width;
+    Size size = mediaSizePresenter.getMediaSize(context);
+    sizeOfHeight = size.height;
+    sizeOfWidth = size.width;
   }
 
   void innitRemoveList() async {}
@@ -170,6 +181,15 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> {
                   keyCheck: 1,
                 ));
           });
+    });
+  }
+
+
+  @override
+  onGetMediaSize(Size size) {
+    setState(() {
+      sizeOfHeight = size.height;
+      sizeOfWidth = size.width;
     });
   }
 }

@@ -10,6 +10,8 @@ import 'package:note/models/label_manager.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/page/note_detail_page.dart';
+import 'package:note/presenter/width_image_presenter.dart';
+import 'package:note/presenter_view/width_image_view.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:provider/provider.dart';
@@ -27,7 +29,7 @@ class MiniNoteWidget extends StatefulWidget {
   MiniNoteWidgetState createState() => MiniNoteWidgetState();
 }
 
-class MiniNoteWidgetState extends State<MiniNoteWidget> {
+class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageView {
   late SharedPreferences preferences;
   double w = 0;
 
@@ -41,6 +43,13 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
   double heightTest = 0;
   Size sizePinNote = Size(0, 0);
   final keyMiniNote = GlobalKey();
+
+  late WidthImagePresenter widthImagePresenter;
+
+  MiniNoteWidgetState() {
+    widthImagePresenter = WidthImagePresenter();
+    widthImagePresenter.attachView(this);
+  }
 
   @override
   void initState() {
@@ -191,23 +200,7 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
   }
 
   setSizeOfWidthImage(dynamic file, double sizeParent) {
-    double height = 0;
-    double width = 0;
-    Image image = Image.file(file);
-
-    Completer<dynamic> completer = Completer<dynamic>();
-    image.image
-        .resolve(const ImageConfiguration())
-        .addListener(ImageStreamListener((ImageInfo info, bool_) {
-      completer.complete(info.image);
-      height = info.image.height.toDouble();
-      width = info.image.width.toDouble();
-      setState(() {
-        w = width * (sizeParent / height);
-        imagesWidth.add(w);
-        w = 0;
-      });
-    }));
+    widthImagePresenter.widthOfImage(file, sizeParent);
   }
 
   buildImagesView({required List<String> images}) {
@@ -337,5 +330,12 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
                 .label
                 ?.isEmpty ??
             false;
+  }
+
+  @override
+  onWidthOfImage(double width) {
+    setState(() {
+      imagesWidth.add(width);
+    });
   }
 }

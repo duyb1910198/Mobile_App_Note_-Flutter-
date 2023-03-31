@@ -4,19 +4,7 @@ import 'package:note/values/share_keys.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LabelManager with ChangeNotifier {
-  List<String> _labels =
-
-  [
-    'label 1',
-    'label 2',
-    'label 3',
-    'label 4',
-    'label 5',
-    'label 6',
-    'label 7',
-    'label 8',
-    'label 9'
-  ];
+  List<String> _labels = [];
 
   LabelManager() {
   }

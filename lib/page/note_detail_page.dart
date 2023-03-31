@@ -8,19 +8,23 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:note/app_path/assets_path.dart';
-import 'package:note/models/background_colors_manager.dart';
+import 'package:note/manager/background_colors_manager.dart';
 import 'package:note/models/check_box.dart';
 import 'package:note/models/font_size_change_notifier.dart';
 import 'package:note/models/label_manager.dart';
-import 'package:note/models/note_manager.dart';
 import 'package:note/models/note.dart';
+import 'package:note/models/note_manager.dart';
+import 'package:note/presenter/media_size_presenter.dart';
+import 'package:note/presenter/width_image_presenter.dart';
+import 'package:note/presenter_view/media_size_view.dart';
+import 'package:note/presenter_view/width_image_view.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
 import 'package:note/widget/app_button/icon_button.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../models/background_manager.dart';
+import '../manager/background_manager.dart';
 
 class DetailNotePage extends StatefulWidget {
   Note notes;
@@ -34,7 +38,7 @@ class DetailNotePage extends StatefulWidget {
   _DetailNotePageState createState() => _DetailNotePageState();
 }
 
-class _DetailNotePageState extends State<DetailNotePage> {
+class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeView,WidthImageView {
   late int imagesSize;
   bool? check = false;
   double sizeOfHeight = 0;
@@ -48,6 +52,15 @@ class _DetailNotePageState extends State<DetailNotePage> {
   List<double> imagesWidth = [];
   List<CheckBoxModal> checkBoxModals = [];
   bool updateHeight = false;
+  late MediaSizePresenter mediaSizePresenter;
+  late WidthImagePresenter widthImagePresenter;
+
+  _DetailNotePageState() {
+    mediaSizePresenter = MediaSizePresenter();
+    mediaSizePresenter.attachView(this);
+    widthImagePresenter = WidthImagePresenter();
+    widthImagePresenter.attachView(this);
+  }
 
   Note get note => widget.notes;
 
@@ -66,13 +79,13 @@ class _DetailNotePageState extends State<DetailNotePage> {
     setPreference();
     imagesSize = widget.notes.images!.length;
     setImageWidthItem();
+    setSizeOfMedia();
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
         overlays: List.empty());
-    setSizeOfMedia();
     return FutureBuilder(
       future: initData(),
       builder: (context, snapshot) {
@@ -584,8 +597,7 @@ class _DetailNotePageState extends State<DetailNotePage> {
   }
 
   setSizeOfMedia() {
-    sizeOfHeight = MediaQuery.of(context).size.height;
-    sizeOfWidth = MediaQuery.of(context).size.width;
+    mediaSizePresenter.getMediaSize(context);
   }
 
   setNote({required String file}) {
@@ -599,23 +611,7 @@ class _DetailNotePageState extends State<DetailNotePage> {
 
   // set list width of image = width(original image) * height(size of parent widget) / height (original image)
   setSizeOfWidthImage(dynamic file, double sizeParent) {
-    double height = 0;
-    double width = 0;
-    Image image = Image.file(file);
-
-    Completer<dynamic> completer = Completer<dynamic>();
-    image.image
-        .resolve(const ImageConfiguration())
-        .addListener(ImageStreamListener((ImageInfo info, bool_) {
-      completer.complete(info.image);
-      height = info.image.height.toDouble();
-      width = info.image.width.toDouble();
-      setState(() {
-        w = width * (sizeParent / height);
-        imagesWidth.add(w);
-        w = 0;
-      });
-    }));
+    widthImagePresenter.widthOfImage(file, sizeParent);
   }
 
   buildImageView(String image, double size, int position) {
@@ -749,5 +745,20 @@ class _DetailNotePageState extends State<DetailNotePage> {
       deleteNote();
     }
     return true;
+  }
+
+  @override
+  onGetMediaSize(Size size) {
+    setState(() {
+      sizeOfHeight = size.height;
+      sizeOfWidth = size.width;
+    });
+  }
+
+  @override
+  onWidthOfImage(double width) {
+    setState(() {
+      imagesWidth.add(width);
+    });
   }
 }

@@ -1,9 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:note/models/note_tile.dart';
 import 'package:note/models/widget_height.dart';
 import 'package:note/values/share_keys.dart';
+import 'package:note/widget/costum_widget/note_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'note.dart';
