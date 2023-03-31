@@ -25,6 +25,7 @@ dependencies:
   flutter:
     sdk: flutter
 
+
   provider: ^6.0.5
   google_fonts: ^4.0.3
   cupertino_icons: ^1.0.5
@@ -47,8 +48,10 @@ dev_dependencies:
 
   flutter_lints: ^2.0.0
 
-flutter:
+  flutter_launcher_icons: ^0.12.0
 
+
+flutter:
   uses-material-design: true
 
   assets:
@@ -71,3 +74,9 @@ flutter:
     - family: Zeyada
       fonts:
         - asset: assets/fonts/zeyada/Zeyada-Regular.ttf
+
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/NoteLogo.png"

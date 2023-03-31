@@ -1,5 +1,4 @@
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
@@ -42,7 +41,7 @@ class _LabelButtonState extends State<LabelButton> {
           children: [
             Padding(
               padding: const EdgeInsets.symmetric( horizontal: 8),
-              child: widget.select ? Icon(Icons.label, color: Colors.black,size: 20,) : Icon(Icons.label_outline, color: Colors.black,size: 20,),
+              child: widget.select ? const Icon(Icons.label, color: Colors.black,size: 20,) : const Icon(Icons.label_outline, color: Colors.black,size: 20,),
             ),
             Text(widget.label, style: AppStyle.senH5.copyWith(color: AppColor.black )),
           ],

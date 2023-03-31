@@ -32,61 +32,20 @@ class NoteManager with ChangeNotifier {
 
   int get counterPin => pinNotes.length;
 
-  int get noteCount => notes.length;
+  int get counterNote => notes.length;
 
   int get deleteNotesCount => deleteNotes.length;
 
-  setHasLabel({required bool value, required int label}) {
-    print('setHasLabel function: value is [$value] label is [$label]');
-    this.hasLabel = value;
-    this.label = label;
-    notifyListeners();
-  }
-
-  setRemoveList(List<int> list) {
-    _removeList = list;
-  }
-
-  notesCount() {
-    return notes.length;
-  }
-
-  firstIdRemove() {
-    print('firstIdRemove founction: removeListIsEmpty ${removeListIsEmpty()} ');
-    print('firstIdRemove founction: removeList is ${_removeList} ');
-
-    if (notes.length == 0) {
-      print(
-          'firstIdRemove founction: id return = ${removeListIsEmpty() ? 1 : removeListMin()}');
-      return removeListIsEmpty() ? 1 : removeListMin();
-    } else {
-      print(
-          'firstIdRemove founction: id return = ${removeListIsEmpty() ? getMaxId() + 1 : removeListMin()}');
-      return removeListIsEmpty() ? getMaxId() + 1 : removeListMin();
-    }
-  }
-
-  getMaxId() {
-    int id = notes[0].id;
-    int length = noteCount >= deleteNotesCount ? noteCount : deleteNotesCount;
-    for (int i = 1; i < length; i++) {
-      if (noteCount > i) {
-        if (id < notes[i].id) {
-          id = notes[i].id;
-        }
-      }
-      if (deleteNotesCount > i) {
-        if (id < deleteNotes[i].id) {
-          id = deleteNotes[i].id;
-        }
+  // set pin notes from notes
+  setPinNotes() {
+    List<Note> list = [];
+    for (int i = 0; i < counterNote; i++) {
+      if (notes[i].pin) {
+        list.add(notes[i]);
       }
     }
-    return id;
-  }
-
-  setNotes(List<Note> list) {
-    notes = list;
-    pin = existPin();
+    pinNotes = list;
+    removeSize(pin: true);
     notifyListeners();
   }
 
@@ -95,11 +54,36 @@ class NoteManager with ChangeNotifier {
     notifyListeners();
   }
 
+  setCheckList(
+      {required int key,
+        required Note note,
+        required SharedPreferences preferences}) {
+
+    List<String> checkList = getCheckList(preferences: preferences, key: key);
+    String notesId = getCheckString(preferences: preferences, key: key);
+    if (notesId == '') {
+      setPreference(
+          shareKey: key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId,
+          stringPreference: '${note.id}',
+          preferences: preferences);
+    } else {
+      for (int i = 0; i < checkList.length; i++) {
+        if (int.parse(checkList[i]) == note.id) {
+          break;
+        } else if (i == checkList.length - 1) {
+          setPreference(
+              shareKey: key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId,
+              stringPreference: '$notesId ${note.id}',
+              preferences: preferences);
+        }
+      }
+    }
+  }
+
   addNote(
       {required Note note,
       required SharedPreferences preferences,
       required int key}) {
-    print('addNote founction : remove list now ++ ${_removeList}');
     String noteString = jsonEncode(note);
     String notesId = getCheckString(preferences: preferences, key: key);
     List<String> checkList = getCheckList(preferences: preferences, key: key);
@@ -141,37 +125,12 @@ class NoteManager with ChangeNotifier {
         }
       }
     }
+
     setCheckList(key: key, note: note, preferences: preferences);
     if (key == 0) {
       setPinNotes();
     }
     notifyListeners();
-  }
-
-  setCheckList(
-      {required int key,
-      required Note note,
-      required SharedPreferences preferences}) {
-
-    List<String> checkList = getCheckList(preferences: preferences, key: key);
-    String notesId = getCheckString(preferences: preferences, key: key);
-    if (notesId == '') {
-      setPreference(
-          shareKey: key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId,
-          stringPreference: '${note.id}',
-          preferences: preferences);
-    } else {
-      for (int i = 0; i < checkList.length; i++) {
-        if (int.parse(checkList[i]) == note.id) {
-          break;
-        } else if (i == checkList.length - 1) {
-          setPreference(
-              shareKey: key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId,
-              stringPreference: '$notesId ${note.id}',
-              preferences: preferences);
-        }
-      }
-    }
   }
 
   updateNote({required Note note}) {
@@ -183,8 +142,7 @@ class NoteManager with ChangeNotifier {
     notifyListeners();
   }
 
-  void removeNote({required int id, required SharedPreferences preferences, required int key}) {
-    print('note id is ${id}');
+  removeNote({required int id, required SharedPreferences preferences, required int key}) {
     final index = key == 0 ? notes.indexWhere((element) => element.id == id) : deleteNotes.indexWhere((element) => element.id == id);
     String checkListString = '';
     int removeElement = -1;
@@ -233,6 +191,51 @@ class NoteManager with ChangeNotifier {
     return _removeList.length == 0 ? true : false;
   }
 
+  setRemoveList(List<int> list) {
+    _removeList = list;
+  }
+
+  int firstIdRemove() {
+    if (notes.length == 0) {
+      return removeListIsEmpty() ? 1 : removeListMin();
+    } else {
+      return removeListIsEmpty() ? getMaxId() + 1 : removeListMin();
+    }
+  }
+
+  int getMaxId() {
+    int id = notes[0].id;
+    int length = counterNote >= deleteNotesCount ? counterNote : deleteNotesCount;
+    for (int i = 1; i < length; i++) {
+      if (counterNote > i) {
+        if (id < notes[i].id) {
+          id = notes[i].id;
+        }
+      }
+      if (deleteNotesCount > i) {
+        if (id < deleteNotes[i].id) {
+          id = deleteNotes[i].id;
+        }
+      }
+    }
+    return id;
+  }
+
+  bool maxElement(List<String> checkList, int element) {
+    for (int i = 0; i < checkList.length; i++) {
+      if (int.parse(checkList[i]) > element) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  setNotes(List<Note> list) {
+    notes = list;
+    pin = existPin();
+    notifyListeners();
+  }
+
   bool existPin() {
     try {
       Note? notePin = notes.firstWhere((note) => note.pin == true);
@@ -250,6 +253,22 @@ class NoteManager with ChangeNotifier {
     return true;
   }
 
+  removeListMin() {
+    int min = _removeList[0];
+    for (int i = 1; i < _removeList.length; i++) {
+      if (_removeList[i] < min) {
+        min = _removeList[i];
+      }
+    }
+    return min;
+  }
+
+  setHasLabel({required bool value, required int label}) {
+    this.hasLabel = value;
+    this.label = label;
+    notifyListeners();
+  }
+
   Note? findById(int id) {
     int index = notes.indexWhere((element) => element.id == id);
     if (index == -1) {
@@ -261,96 +280,12 @@ class NoteManager with ChangeNotifier {
     if (index != -1) {
       return notes[index];
     }
-
     return null;
-  }
-
-  deleteAll({required SharedPreferences preferences}) {
-    notes = [];
-    deleteNotes = [];
-    _removeList = [];
-    preferences.remove(ShareKey.notesId);
-    preferences.remove(ShareKey.deleteNotesId);
-    preferences.remove(ShareKey.removeList);
-    notifyListeners();
-  }
-
-  getCheckList({required SharedPreferences preferences, required int key}) {
-    String notesId = getCheckString(preferences: preferences, key: key) ?? '';
-    List<String> checkList = notesId.split(" ");
-    return checkList;
-  }
-
-  getCheckString({required SharedPreferences preferences, required int key}) {
-    String notesId = preferences.getString(key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId) ?? '';
-    print('check string is');
-    print('check string ${notesId}');
-    return notesId;
-  }
-
-  setPreference(
-      {required String shareKey,
-      required String stringPreference,
-      required SharedPreferences preferences}) {
-    preferences.setString(shareKey, stringPreference);
-  }
-
-  removeListMin() {
-    print('removeListMin founction:');
-    int min = _removeList[0];
-    print('removeListMin founction: min before check = $min');
-    ;
-    for (int i = 1; i < _removeList.length; i++) {
-      print('removeListMin founction: min in check = $min');
-      if (_removeList[i] < min) {
-        min = _removeList[i];
-        print('removeListMin founction: min change = $min');
-      }
-    }
-    print('removeListMin founction: min return = $min');
-    return min;
-  }
-
-  void setRemoveListReference(
-      {required SharedPreferences preferences, int? idRemove}) {
-    print('setRemoveListReference founction:');
-    String temp = '';
-    if (_removeList.isNotEmpty) {
-      print(
-          'setRemoveListReference founction: _removeList.isNotEmpty $_removeList => ${_removeList.isNotEmpty}');
-      if (_removeList[0] != '') {
-        _removeList.remove(idRemove);
-        for (int i = 0; i < _removeList.length; i++) {
-          temp += i == 0
-              ? _removeList[i].toString()
-              : ' ${_removeList[i].toString()}';
-          print(
-              'setRemoveListReference founction: remove list add = ${_removeList[i]}');
-        }
-        print('setRemoveListReference founction: set preference string: $temp');
-        preferences.setString(ShareKey.removeList, temp);
-      } else {
-        print('setRemoveListReference founction: _removeList[0] = '
-            ' ${_removeList[0]}');
-      }
-    }
-  }
-
-  bool maxElement(List<String> checkList, int element) {
-    print('maxElement founction: check list $checkList + position $element');
-    for (int i = 0; i < checkList.length; i++) {
-      if (int.parse(checkList[i]) > element) {
-        print('maxElement founction: not id max $element');
-        return false;
-      }
-    }
-    print('maxElement founction: is id max $element');
-    return true;
   }
 
   List<Note> findByLabel({required int id}) {
     List<Note> list = [];
-    for (int i = 0; i < noteCount; i++) {
+    for (int i = 0; i < counterNote; i++) {
       List<int> labels = notes[i].label ?? [];
       if (labels != []) {
         if (labels.indexWhere((element) => element == id) != -1) {
@@ -361,23 +296,64 @@ class NoteManager with ChangeNotifier {
     return list;
   }
 
-  setPinNotes() {
-    print('setPinNotes function');
-    List<Note> list = [];
-    for (int i = 0; i < noteCount; i++) {
-      if (notes[i].pin) {
-        list.add(notes[i]);
+  List<String> getCheckList({required SharedPreferences preferences, required int key}) {
+    String notesId = getCheckString(preferences: preferences, key: key) ?? '';
+    List<String> checkList = notesId.split(" ");
+    return checkList;
+  }
+
+  String getCheckString({required SharedPreferences preferences, required int key}) {
+    String notesId = preferences.getString(key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId) ?? '';
+    return notesId;
+  }
+
+  setPreference(
+      {required String shareKey,
+      required String stringPreference,
+      required SharedPreferences preferences}) {
+    preferences.setString(shareKey, stringPreference);
+  }
+
+  setRemoveListReference(
+      {required SharedPreferences preferences, int? idRemove}) {
+    String temp = '';
+    if (_removeList.isNotEmpty) {
+      if (_removeList[0] != '') {
+        _removeList.remove(idRemove);
+        for (int i = 0; i < _removeList.length; i++) {
+          temp += i == 0
+              ? _removeList[i].toString()
+              : ' ${_removeList[i].toString()}';
+        }
+        preferences.setString(ShareKey.removeList, temp);
+      } else {
       }
     }
-    pinNotes = list;
-    removeSize(pin: true);
-    print('setPinNotes function: pin count = ${pinNotes.length}');
-    notifyListeners();
+  }
+
+  // remove size not exist note
+  removeSize({required bool pin}) {
+    if (pin) {
+      for (int i = 0; i < pinNotesSize.length; i++) {
+        int index =
+        pinNotes.indexWhere((element) => element.id == pinNotesSize[i].id);
+        if (index == -1) {
+          removeMiniNotesSize(pin: true, position: i);
+        }
+      }
+    } else {
+      for (int i = 0; i < miniNotesSize.length; i++) {
+        int index =
+        notes.indexWhere((element) => element.id == miniNotesSize[i].id);
+        if (index == -1) {
+          removeMiniNotesSize(pin: false, position: i);
+        }
+      }
+    }
   }
 
   addMiniNotesSize(
       {required double height, required bool pin, required int id}) {
-    print('addMiniNotesSize function:');
     if (pin) {
       int exist = pinNotesSize.indexWhere((element) => element.id == id);
       if (exist == -1) {
@@ -399,7 +375,6 @@ class NoteManager with ChangeNotifier {
   }
 
   removeMiniNotesSize({required position, required bool pin}) {
-    print('removeMiniNotesSize function');
     if (pin) {
       pinNotesSize.removeAt(position);
     } else {
@@ -410,7 +385,6 @@ class NoteManager with ChangeNotifier {
 
   updateMiniNotesSize(
       {required double height, required bool pin, required int id}) {
-    print('updateMiniNotesSize function:');
     if (pin) {
       int index = pinNotesSize.indexWhere((element) => element.id == id);
       pinNotesSize[index] = WidgetHeight(id: id, height: height);
@@ -421,17 +395,13 @@ class NoteManager with ChangeNotifier {
     notifyListeners();
   }
 
-  getMiniNotesSize({required int type, required bool pin}) {
-    print('getMiniNotesSize function:');
+  double getMiniNotesSize({required int type, required bool pin}) {
     double column1 = 0;
     double column2 = 0;
     for ( int i = 0; i < pinNotesSize.length; i++) {
-      print('pin: i is [$i] heightheight is: ${pinNotesSize[i].height}');
-      print('mini: i is [$i] height is: ${miniNotesSize[i].height}');
     }
     if (pin) {
       if (pinNotesSize.isEmpty) return column1;
-      print('getMiniNotesSize function: pin count = ${pinNotesSize.length}');
       column1 = getHeightColumn(true, pinNotesSize);
       column2 = getHeightColumn(false, pinNotesSize);
     } else {
@@ -442,20 +412,16 @@ class NoteManager with ChangeNotifier {
     switch (type) {
       case NoteTile.TYPE_LIST:
         {
-          print(
-              'size TYPE_LIST is column1 ${pin ? getHeightList(pinNotesSize) : getHeightList(miniNotesSize)}');
           return pin
               ? getHeightList(pinNotesSize)
               : getHeightList(miniNotesSize);
         }
       case NoteTile.TYPE_GRID:
         {
-          print('size TYPE_GRID is column1 ${column1} column2 ${column2}');
           return column1;
         }
       case NoteTile.TYPE_STAGGERED:
         {
-          print('size TYPE_STAGGERED is column1 ${column1} column2 ${column2}');
           return column1 >= column2 ? column1 : column2;
         }
       default:
@@ -471,16 +437,13 @@ class NoteManager with ChangeNotifier {
       if (column) {
         if (i == 0 || i % 2 == 0) {
           height += heights[i].height;
-          print('[i] f: $i height ${heights[i].id}');
         }
       } else {
         if (i != 0 && i % 2 != 0) {
           height += heights[i].height;
-          print('[i] s: $i');
         }
       }
     }
-    print('getHeightColumn :heigth is $height');
     return height;
   }
 
@@ -489,7 +452,6 @@ class NoteManager with ChangeNotifier {
     for (int i = 0; i < heights.length; i++) {
       height += heights[i].height;
     }
-    print('getHeightList heigth is $height');
     return height;
   }
 
@@ -497,23 +459,14 @@ class NoteManager with ChangeNotifier {
     updateHeightId = id;
   }
 
-  void removeSize({required bool pin}) {
-    if (pin) {
-      for (int i = 0; i < pinNotesSize.length; i++) {
-        int index =
-        pinNotes.indexWhere((element) => element.id == pinNotesSize[i].id);
-        if (index == -1) {
-          removeMiniNotesSize(pin: true, position: i);
-        }
-      }
-    } else {
-      for (int i = 0; i < miniNotesSize.length; i++) {
-        int index =
-        notes.indexWhere((element) => element.id == miniNotesSize[i].id);
-        if (index == -1) {
-          removeMiniNotesSize(pin: false, position: i);
-        }
-      }
-    }
+  //delete all data preferences
+  deleteAll({required SharedPreferences preferences}) {
+    notes = [];
+    deleteNotes = [];
+    _removeList = [];
+    preferences.remove(ShareKey.notesId);
+    preferences.remove(ShareKey.deleteNotesId);
+    preferences.remove(ShareKey.removeList);
+    notifyListeners();
   }
 }

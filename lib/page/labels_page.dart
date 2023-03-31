@@ -38,12 +38,10 @@ class _LabelsPageState extends State<LabelsPage> {
       positions.add(false);
     }
     controller = TextEditingController();
-    print('init function: labels => ${context.read<LabelManager>().labels}');
   }
 
   Future initPreference() async {
     preferences = await SharedPreferences.getInstance();
-    print('lable in LableManager: ${context.read<LabelManager>().labels}');
   }
 
   @override
@@ -179,7 +177,6 @@ class _LabelsPageState extends State<LabelsPage> {
               controller: controller,
               style: AppStyle.senH5.copyWith(fontWeight: FontWeight.w700),
               onChanged: (value) {
-                print('content ????: $value, ${controller.text}');
                 if (!value.contains(',')) {
                   context.read<LabelManager>().update(
                       text: controller.text,

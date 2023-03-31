@@ -8,7 +8,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:note/app_path/assets_path.dart';
 import 'package:note/page.dart';
-import 'package:note/values/fonts.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../values/colors.dart';
 

@@ -5,14 +5,11 @@ import 'package:note/models/font_size_change_notifier.dart';
 import 'package:note/models/label_manager.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/models/route_manager.dart';
-import 'package:note/page/note_recycle_bin_page.dart';
-import 'packages/love/love.dart';
 import 'package:note/page.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Loves.getAllImage() ;
   // Loves.datas.forEach((element) {
   //   print(element.image);
   // });
@@ -42,8 +39,6 @@ class MyApp extends StatelessWidget {
         ),
         home:  const LandingPage(),
         routes: {
-          HomePage.routeName:
-            (ctx) => const HomePage(),
           LandingPage.routeName:
             (ctx) => const LandingPage(),
           NoteOverviewPage.routeName:

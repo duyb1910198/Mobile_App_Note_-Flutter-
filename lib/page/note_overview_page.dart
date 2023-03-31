@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:note/models/animation_model.dart';
 import 'package:note/models/font_size_change_notifier.dart';
 import 'package:note/models/label_manager.dart';
 import 'package:note/models/note.dart';
@@ -11,7 +10,6 @@ import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
 import 'package:note/widget/app_drawer/app_drawer.dart';
-import 'package:note/widget/costum_widget/animated_floatbutton_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/top_right_badge.dart';
@@ -53,7 +51,6 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> {
       labels = labelStr.split(',');
     } else {}
     context.read<LabelManager>().labels = labels;
-    print('initPreference function: [$labelStr] length [${labels.length}]');
   }
 
   @override

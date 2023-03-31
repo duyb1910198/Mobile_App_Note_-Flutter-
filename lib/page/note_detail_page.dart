@@ -73,7 +73,6 @@ class _DetailNotePageState extends State<DetailNotePage> {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
         overlays: List.empty());
     setSizeOfMedia();
-    print('build function: Id of new note ${widget.notes.id}');
     return FutureBuilder(
       future: initData(),
       builder: (context, snapshot) {
@@ -559,7 +558,6 @@ class _DetailNotePageState extends State<DetailNotePage> {
                     onTap: () {
                       _pickImage(source: ImageSource.camera);
                       if (widget.notes.images!.isEmpty) {
-                        print('empty image Chụp ảnh: ');
                         context
                             .read<NoteManager>()
                             .setUpdateHeight(id: widget.notes.id);
@@ -572,7 +570,6 @@ class _DetailNotePageState extends State<DetailNotePage> {
                     onTap: () {
                       _pickImage(source: ImageSource.gallery);
                       if (widget.notes.images!.isEmpty) {
-                        print('empty image Chụp ảnh: ');
                         context
                             .read<NoteManager>()
                             .setUpdateHeight(id: widget.notes.id);
@@ -600,6 +597,7 @@ class _DetailNotePageState extends State<DetailNotePage> {
         .addNote(note: widget.notes, preferences: preferences, key: 0);
   }
 
+  // set list width of image = width(original image) * height(size of parent widget) / height (original image)
   setSizeOfWidthImage(dynamic file, double sizeParent) {
     double height = 0;
     double width = 0;
@@ -691,7 +689,6 @@ class _DetailNotePageState extends State<DetailNotePage> {
       final file = File(xFile.path);
       await setSizeOfWidthImage(file, imageHeight);
       double width = w;
-      print('width image isss $width}');
       imagesWidth.add(width);
       setNote(file: xFile.path);
     }
@@ -720,24 +717,6 @@ class _DetailNotePageState extends State<DetailNotePage> {
     Navigator.pop(context);
   }
 
-  Widget buildLabelManagerView({required String label, required int id}) {
-    return SizedBox(
-        height: 80,
-        child: Column(
-          children: <Widget>[
-            CheckboxListTile(
-              title: Text('checkbox'),
-              onChanged: (value) {
-                setState(() {
-                  check = value;
-                });
-              },
-              value: check,
-            )
-          ],
-        ));
-  }
-
   chooseLabel({required position}) {}
 
   void setImageWidthItem() {
@@ -749,11 +728,9 @@ class _DetailNotePageState extends State<DetailNotePage> {
         setSizeOfWidthImage(file, imageHeight);
       }
     }
-    print('width image list is $imagesWidth');
   }
 
   backPreviousPage()  {
-    print(' vaild is ${widget.notes.isVaild(note: widget.notes)}');
     if (widget.notes.isVaild(note: widget.notes)) {
       setNotePreference();
       context.read<NoteManager>().setPinNotes();
@@ -764,7 +741,6 @@ class _DetailNotePageState extends State<DetailNotePage> {
   }
 
   Future<bool> isBackPreviousPage() async {
-    print(' isbackPreviousPage is ${widget.notes.isVaild(note: widget.notes)}');
     if (widget.notes.isVaild(note: widget.notes)) {
       setNotePreference();
       context.read<NoteManager>().setPinNotes();

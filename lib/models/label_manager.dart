@@ -59,7 +59,6 @@ class LabelManager with ChangeNotifier {
 
   void update({required String text, required int id, required SharedPreferences preferences}) {
 
-    print('update function: id $id text $text');
     int index = _labels.indexWhere((element) => element == text);
 
     if (index == -1) {
@@ -77,8 +76,6 @@ class LabelManager with ChangeNotifier {
   }
 
   void remove({required int position, required SharedPreferences preferences}) {
-    print('remove function:');
-    print('remove function: text $position');
     // final index = _labels.indexWhere((element) => element == text);
     _labels.removeAt(position);
     setPreference(shareKey: ShareKey.labels, preferences: preferences, stringPreference: preferenceData());
@@ -92,7 +89,6 @@ class LabelManager with ChangeNotifier {
 
 
   setPreference({required String shareKey, required String stringPreference, required SharedPreferences preferences})  {
-    print('setPreference function: $stringPreference');
     preferences.setString(shareKey, stringPreference);
   }
 
@@ -105,13 +101,11 @@ class LabelManager with ChangeNotifier {
         label += ' ,${labels[i]}';
       }
     }
-    print('toString lables function: lables String return $label');
     return label;
   }
 
   @override
   String toString() {
-    print('toString lables function:');
     String label = '';
     for(int i = 0; i < labels.length; i++) {
       if (i == 0) {
@@ -120,7 +114,6 @@ class LabelManager with ChangeNotifier {
         label += ' ${labels[i]}';
       }
     }
-    print('toString lables function: lables String return $label');
     return label;
   }
 

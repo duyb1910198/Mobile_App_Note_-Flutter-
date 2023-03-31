@@ -3,14 +3,11 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:note/app_path/assets_path.dart';
 import 'package:note/models/animation_model.dart';
 import 'package:note/models/label_manager.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/models/route_manager.dart';
 import 'package:note/page.dart';
-import 'package:note/page/labels_page.dart';
-import 'package:note/page/setting_page.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/widget/app_button/app_button.dart';
@@ -145,19 +142,6 @@ class _DrawerWidget extends State<AppDrawer> {
           });
         },
         select: select == id + 2);
-
-    // return Container(
-    //     height: 40,
-    //     child: Row(
-    //       crossAxisAlignment: CrossAxisAlignment.center,
-    //       children: <Widget>[
-    //         Icon(Icons.label_outline),
-    //         Padding(
-    //           padding: EdgeInsets.symmetric(horizontal: 8.0),
-    //           child: Text(label, style: AppStyle.senH5,),
-    //         ),
-    //       ],
-    //     ));
   }
 
   Future<bool> rebuild() async {
@@ -171,10 +155,8 @@ class _DrawerWidget extends State<AppDrawer> {
         if (!mounted) return false;
       }
       setState(() {
-
         log('size is ${context.read<LabelManager>().labels.isNotEmpty}');
         labelsHeight = (40 * context.read<LabelManager>().count()).toDouble();
-        print('labelsHeight = $labelsHeight');
       });
     }
     // else if (sizeNote.height == 0) {

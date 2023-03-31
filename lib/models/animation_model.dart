@@ -23,6 +23,5 @@ class AnimationModel with ChangeNotifier {
         notifyListeners();
       });
     }
-    print('cos change');
   }
 }

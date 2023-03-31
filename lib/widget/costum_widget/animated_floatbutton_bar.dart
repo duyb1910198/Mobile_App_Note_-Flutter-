@@ -1,8 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:note/models/animation_model.dart';
-import 'package:note/models/note.dart';
-import 'package:note/models/note_manager.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:provider/provider.dart';
@@ -10,8 +8,8 @@ import 'package:provider/provider.dart';
 class AnimatedFloatButtonBar extends StatefulWidget {
   final String textFirstButton;
   final String textSecondButton;
-  final IconData FirstButton;
-  final IconData SecondButton;
+  final IconData firstButton;
+  final IconData secondButton;
   final int duration;
   final double size;
   final VoidCallback ontapFirstButton;
@@ -20,8 +18,8 @@ class AnimatedFloatButtonBar extends StatefulWidget {
   AnimatedFloatButtonBar(
       {required this.textFirstButton,
       required this.textSecondButton,
-      required this.FirstButton,
-      required this.SecondButton,
+      required this.firstButton,
+      required this.secondButton,
       required this.duration,
       required this.size,
       required this.ontapFirstButton,
@@ -71,7 +69,7 @@ class AnimatedFloatButtonBarState extends State<AnimatedFloatButtonBar> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(widget.FirstButton),
+                    Icon(widget.firstButton),
                     Flexible(
                         child: Text(widget.textFirstButton,
                             style: AppStyle.senH6
@@ -93,7 +91,7 @@ class AnimatedFloatButtonBarState extends State<AnimatedFloatButtonBar> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(widget.SecondButton),
+                    Icon(widget.secondButton),
                     Text(
                       widget.textSecondButton,
                       style:

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -45,7 +44,6 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
 
   @override
   void initState() {
-    print('initState ${widget.note.id}');
     setImageWidthItem();
     super.initState();
   }
@@ -56,7 +54,6 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
     return FutureBuilder(
         future: initData(),
         builder: (context, snapshot) {
-          print('key check is ${widget.keyCheck}');
           if (snapshot.connectionState == ConnectionState.done) {
             return Consumer<NoteManager>(builder: (context, myModelNote, child) {
               int index = widget.keyCheck == 0
@@ -298,15 +295,12 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
         final RenderBox box =
             keyMiniNote.currentContext!.findRenderObject() as RenderBox;
         setState(() {
-          print('ERROR FLOW ${context.read<NoteManager>().changeStyle}');
           sizePinNote = box.size;
           bool add = false;
           if (heightTest == 0) {
             add = true;
           }
-          print('ERROR FLOW add is ${add} ');
           heightTest = sizePinNote.height + 14;
-          print('ERROR FLOW size is ${heightTest} ');
           add
               ? context.read<NoteManager>().addMiniNotesSize(
                   height: heightTest,
@@ -319,7 +313,6 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> {
 
           context.read<NoteManager>().changeStyle = false;
           context.read<NoteManager>().updateHeightId = -1;
-          print('ERROR FLOW end ${add}');
         });
       });
 
