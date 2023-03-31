@@ -1,0 +1,348 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:awesome_dialog/awesome_dialog.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:note/app_path/assets_path.dart';
+import 'package:note/models/font_size_change_notifier.dart';
+import 'package:note/models/label_manager.dart';
+import 'package:note/models/note.dart';
+import 'package:note/models/note_manager.dart';
+import 'package:note/page/note_detail_page.dart';
+import 'package:note/values/colors.dart';
+import 'package:note/values/fonts.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class MiniNoteWidget extends StatefulWidget {
+  final Note note;
+  final bool? pin;
+  final int keyCheck;
+
+  MiniNoteWidget(
+      {super.key, required this.note, this.pin, required this.keyCheck});
+
+  @override
+  MiniNoteWidgetState createState() => MiniNoteWidgetState();
+}
+
+class MiniNoteWidgetState extends State<MiniNoteWidget> {
+  late SharedPreferences preferences;
+  double w = 0;
+
+  double get heightImages => widget.note.images!.isEmpty ? 0 : 100;
+
+  double sizeOfHeight = 0;
+  double sizeOfWidth = 0;
+
+  List<double> imagesWidth = [];
+
+  double heightTest = 0;
+  Size sizePinNote = Size(0, 0);
+  final keyMiniNote = GlobalKey();
+
+  @override
+  void initState() {
+    print('initState ${widget.note.id}');
+    setImageWidthItem();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    rebuild();
+    return FutureBuilder(
+        future: initData(),
+        builder: (context, snapshot) {
+          print('key check is ${widget.keyCheck}');
+          if (snapshot.connectionState == ConnectionState.done) {
+            return Consumer<NoteManager>(builder: (context, myModelNote, child) {
+              int index = widget.keyCheck == 0
+                  ? context
+                  .read<NoteManager>()
+                  .notes
+                  .indexWhere((element) => element.id == widget.note.id)
+                  : context
+                  .read<NoteManager>()
+                  .deleteNotes
+                  .indexWhere((element) => element.id == widget.note.id);
+              if (index != -1) {
+                return Container(
+                  key: keyMiniNote,
+                  decoration: BoxDecoration(
+                    color: Color(
+                        myModelNote.findById(widget.note.id)!.backgroundColor ??
+                            0xffffffff),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: const [
+                      BoxShadow(
+                        color: AppColor.black,
+                        offset: Offset(2, 3),
+                        blurRadius: 10,
+                      )
+                    ],
+                    image: DecorationImage(
+                        image: AssetImage(myModelNote
+                            .findById(widget.note.id)!
+                            .backgroundImage ??
+                            AssetsPath.empty1),
+                        fit: BoxFit.cover),
+                  ),
+                  child: ClipRRect(
+                    child: GestureDetector(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Consumer<NoteManager>(
+                                  builder: (context, myModel, child) {
+                                    return SizedBox(
+                                        height: heightImages,
+                                        child: buildImagesView(
+                                            images: (myModel
+                                                .findById(widget.note.id)!
+                                                .images ??
+                                                [])));
+                                  }),
+                              myModelNote.findById(widget.note.id)!.labelImages ==
+                                  ''
+                                  ? Container()
+                                  : SizedBox(
+                                width: double.infinity,
+                                child: Consumer<FontSizeChangnotifier>(
+                                  builder: (context, myModel, child) {
+                                    return Text(
+                                      '${myModelNote.findById(widget.note.id)!.labelImages}',
+                                      style: AppStyle.senH4.copyWith(
+                                          fontSize: myModel.labelSize),
+                                    );
+                                  },
+                                ),
+                              ),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Consumer<FontSizeChangnotifier>(
+                                  builder: (context, myModel, child) {
+                                    return Text(
+                                        myModelNote
+                                            .findById(widget.note.id)!
+                                            .content ??
+                                            '',
+                                        style: AppStyle.senH4.copyWith(
+                                            fontSize: myModel.contentSize));
+                                  },
+                                ),
+                              ),
+                              checkExist()
+                                  ? Container()
+                                  : SizedBox(
+                                  height: 26,
+                                  child: Consumer<NoteManager>(
+                                    builder: (context, myModel, child) {
+                                      int index = myModel.notes.indexWhere(
+                                              (element) =>
+                                          element.id == widget.note.id);
+                                      return MasonryGridView.count(
+                                          scrollDirection: Axis.horizontal,
+                                          crossAxisSpacing: 2,
+                                          mainAxisSpacing: 10,
+                                          crossAxisCount: 1,
+                                          itemCount: index != -1
+                                              ? myModel.notes
+                                              .firstWhere((element) =>
+                                          element.id ==
+                                              widget.note.id)
+                                              .label
+                                              ?.length
+                                              : 0,
+                                          shrinkWrap: true,
+                                          itemBuilder: (ctx, i) =>
+                                              buildLabelView(
+                                                  l: context
+                                                      .read<LabelManager>()
+                                                      .labels[
+                                                  widget
+                                                      .note.label![i]]));
+                                    },
+                                  )),
+                            ]),
+                      ),
+                      onTap: () {
+                        if (widget.keyCheck == 0) {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => DetailNotePage(
+                                  notes: myModelNote.findById(widget.note.id)!)));
+                        }
+                      },
+                    ),
+                  ),
+                );
+              }
+              return Container();
+            });
+          }
+          return Container();
+        });
+  }
+
+  setSizeOfMedia() {
+    sizeOfHeight = MediaQuery.of(context).size.height;
+    sizeOfWidth = MediaQuery.of(context).size.width;
+  }
+
+  setSizeOfWidthImage(dynamic file, double sizeParent) {
+    double height = 0;
+    double width = 0;
+    Image image = Image.file(file);
+
+    Completer<dynamic> completer = Completer<dynamic>();
+    image.image
+        .resolve(const ImageConfiguration())
+        .addListener(ImageStreamListener((ImageInfo info, bool_) {
+      completer.complete(info.image);
+      height = info.image.height.toDouble();
+      width = info.image.width.toDouble();
+      setState(() {
+        w = width * (sizeParent / height);
+        imagesWidth.add(w);
+        w = 0;
+      });
+    }));
+  }
+
+  buildImagesView({required List<String> images}) {
+    return Consumer<NoteManager>(builder: (ctx, myModel, child) {
+      return MasonryGridView.count(
+          scrollDirection: Axis.horizontal,
+          crossAxisSpacing: 2,
+          mainAxisSpacing: 2,
+          crossAxisCount: 1,
+          itemCount: myModel.findById(widget.note.id)!.images!.length,
+          shrinkWrap: true,
+          itemBuilder: (ctx, i) {
+            return buildImageView(
+                myModel.findById(widget.note.id)!.images![i], i);
+          });
+    });
+  }
+
+  buildImageView(String image, int position) {
+    final file = File(image);
+    return Consumer<NoteManager>(
+      builder: (ctx, myModel, child) {
+        return Container(
+          height: myModel.findById(widget.note.id)!.images != [] ? 100 : 10,
+          width: position >= imagesWidth.length ? 0 : imagesWidth[position],
+          decoration: BoxDecoration(
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+              image: DecorationImage(
+                  scale: 1, image: FileImage(file), fit: BoxFit.cover)),
+        );
+      },
+    );
+  }
+
+  Widget buildLabelView({required String l}) {
+    String label = l;
+    return DecoratedBox(
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.all(Radius.circular(8)),
+        color: AppColor.labelColor,
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(4.0),
+        child: Text(
+          label,
+          style: AppStyle.senH5.copyWith(fontWeight: FontWeight.w700),
+        ),
+      ),
+    );
+  }
+
+  setImageWidthItem() {
+    if (widget.note.images!.isNotEmpty) {
+      for (int i = 0; i < widget.note.images!.length; i++) {
+        String image = widget.note.images![i];
+        final file = File(image);
+        setSizeOfWidthImage(file, heightImages);
+      }
+    }
+  }
+
+  Future<bool> rebuild() async {
+    int index = context
+        .read<NoteManager>()
+        .notes
+        .indexWhere((element) => element.id == widget.note.id);
+    if (index != -1) {
+      if (!mounted) return false;
+      // if there's a current frame,
+      if (heightTest == 0 ||
+          context.read<NoteManager>().updateHeightId == widget.note.id ||
+          context.read<NoteManager>().changeStyle) {
+        if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
+          // wait for the end of that frame.
+          await SchedulerBinding.instance.endOfFrame;
+          if (!mounted) return false;
+        }
+        caculateSize();
+      }
+    }
+    return true;
+  }
+
+  void caculateSize() => WidgetsBinding.instance.addPostFrameCallback((_) {
+        final RenderBox box =
+            keyMiniNote.currentContext!.findRenderObject() as RenderBox;
+        setState(() {
+          print('ERROR FLOW ${context.read<NoteManager>().changeStyle}');
+          sizePinNote = box.size;
+          bool add = false;
+          if (heightTest == 0) {
+            add = true;
+          }
+          print('ERROR FLOW add is ${add} ');
+          heightTest = sizePinNote.height + 14;
+          print('ERROR FLOW size is ${heightTest} ');
+          add
+              ? context.read<NoteManager>().addMiniNotesSize(
+                  height: heightTest,
+                  pin: widget.pin ?? false,
+                  id: widget.note.id)
+              : context.read<NoteManager>().updateMiniNotesSize(
+                  height: heightTest,
+                  pin: widget.pin ?? false,
+                  id: widget.note.id);
+
+          context.read<NoteManager>().changeStyle = false;
+          context.read<NoteManager>().updateHeightId = -1;
+          print('ERROR FLOW end ${add}');
+        });
+      });
+
+  initData() async {
+    setImageWidthItem();
+    preferences = await SharedPreferences.getInstance();
+  }
+
+  checkExist() {
+    return widget.keyCheck == 0
+        ? context
+                .read<NoteManager>()
+                .notes
+                .firstWhere((element) => element.id == widget.note.id)
+                .label
+                ?.isEmpty ??
+            false
+        : context
+                .read<NoteManager>()
+                .deleteNotes
+                .firstWhere((element) => element.id == widget.note.id)
+                .label
+                ?.isEmpty ??
+            false;
+  }
+}
