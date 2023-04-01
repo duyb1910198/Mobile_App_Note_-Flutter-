@@ -1,3 +1,6 @@
+
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:note/models/font_size_change_notifier.dart';
@@ -5,6 +8,8 @@ import 'package:note/models/label_manager.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/page/note_detail_page.dart';
+import 'package:note/presenter/exit_app_presenter.dart';
+import 'package:note/presenter_view/exit_app_view.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
@@ -23,18 +28,29 @@ class NoteOverviewPage extends StatefulWidget {
   _NoteOverviewPageState createState() => _NoteOverviewPageState();
 }
 
-class _NoteOverviewPageState extends State<NoteOverviewPage> {
+class _NoteOverviewPageState extends State<NoteOverviewPage> /*implements ExitAppView */{
   late SharedPreferences preferences;
   int tile = 0;
   int labelSize = 25;
 
   int contentSize = 18;
 
+  late Future<bool> isExit;
+
+  late ExitAppPresenter exitAppPresenter;
+
+
+
   @override
   void initState() {
     super.initState();
     initPreference();
   }
+
+  // _NoteOverviewPageState(){
+  //   exitAppPresenter = ExitAppPresenter();
+  //   exitAppPresenter.attachView(this);
+  // }
 
   initPreference() async {
     preferences = await SharedPreferences.getInstance();
@@ -159,4 +175,38 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> {
     Navigator.of(context).push(
         MaterialPageRoute(builder: (context) => DetailNotePage(notes: note)));
   }
+
+  // @override
+  // onExitApp(Future<bool> isExit) {
+  //   setState(() {
+  //     this.isExit = isExit;
+  //     print('onExitApp a');
+  //     if (this.isExit != null) {
+  //       print('onExitApp b');
+  //       checkExit();
+  //   }
+  //   });
+  // }
+  //
+  // Future<bool> exitApp() async {
+  //   print('this.isExit bef ');
+  //   await exitAppPresenter.exitApp(context: context);
+  //    if (this.isExit != null) {
+  //     if(await Future.value(this.isExit)) {
+  //       exit(0);
+  //     } else {
+  //       return false;
+  //     }
+  //   } else {
+  //     return false;
+  //   }
+  // }
+  //
+  // checkExit() async {
+  //   print('this.isExit ');
+  //   print('this.isExit value ${this.isExit}');
+  //   if(await Future.value(this.isExit)) {
+  //   exit(0);
+  //   }
+  // }
 }
