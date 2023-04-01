@@ -64,7 +64,6 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
 
   initData() async {
     isLongPressV = ValueNotifier(isLongPress);
-    setSizeOfMedia();
     notes.clear();
     preferences = await SharedPreferences.getInstance();
     String notesId = preferences.getString(ShareKey.deleteNotesId) ?? '';
@@ -80,78 +79,82 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
       innitRemoveList();
       context.read<NoteManager>().setDeleteNotes(notes);
     } // init note list
+
   }
 
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky,
         overlays: List.empty());
+    setSizeOfMedia();
     return FutureBuilder(
         future: initData(),
         builder: (context, snapshot) {
-          return Scaffold(
-              appBar: AppBar(
-                title: Text('Thùng rác',
-                    style: AppStyle.senH4.copyWith(color: AppColor.white)),
-                backgroundColor: AppColor.appBarColor,
-                leading: InkWell(
-                  onTap: () {
-                    context.read<AnimationModel>().changeAnimation(value: false);
-                    Navigator.pop(context);
-                  },
-                  child: const Icon(Icons.arrow_back_rounded),
-                ),
-              ),
-              body: SingleChildScrollView(
-                child: GestureDetector(
-                  onTap: () {
-                    context
-                        .read<AnimationModel>()
-                        .changeAnimation(value: false);
-                  },
-                  onLongPress: () {
-                    context
-                        .read<AnimationModel>()
-                        .changeAnimation(value: false);
-                  },
-                  child: Container(
-                    height: double.maxFinite,
-                    width: double.maxFinite,
-                    child: buildDeleteNotes(),
+          if(snapshot.connectionState == ConnectionState.done) {
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text('Thùng rác',
+                      style: AppStyle.senH4.copyWith(color: AppColor.white)),
+                  backgroundColor: AppColor.appBarColor,
+                  leading: InkWell(
+                    onTap: () {
+                      context.read<AnimationModel>().changeAnimation(value: false);
+                      Navigator.pop(context);
+                    },
+                    child: const Icon(Icons.arrow_back_rounded),
                   ),
                 ),
-              ),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.centerDocked,
-              floatingActionButton: Padding(
-                padding: const EdgeInsets.only(bottom: 50),
-                child: AnimatedFloatButtonBar(
-                      textFirstButton: 'Khôi phục',
-                      textSecondButton: 'Xóa vĩnh viễn',
-                      firstButton: Icons.undo,
-                      secondButton: Icons.delete_outline,
-                      duration: 200,
-                      size: sizeOfWidth * 0.9,
-                      ontapFirstButton: () {
-                        Note note = context
-                            .read<NoteManager>()
-                            .deleteNotes
-                            .firstWhere((element) => element.id == noteId);
-                        context.read<NoteManager>().addNote(
-                            note: note, preferences: preferences, key: 0);
-                      },
-                      ontapSecondButton: () {
-                        context.read<NoteManager>().removeNote(
-                            id: noteId, preferences: preferences, key: 1);
-                      })
-              ));
+                body: SingleChildScrollView(
+                  child: GestureDetector(
+                    onTap: () {
+                      context
+                          .read<AnimationModel>()
+                          .changeAnimation(value: false);
+                    },
+                    onLongPress: () {
+                      context
+                          .read<AnimationModel>()
+                          .changeAnimation(value: false);
+                    },
+                    child: Container(
+                      height: double.maxFinite,
+                      width: double.maxFinite,
+                      child: buildDeleteNotes(),
+                    ),
+                  ),
+                ),
+                floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerDocked,
+                floatingActionButton: Padding(
+                    padding: const EdgeInsets.only(bottom: 50),
+                    child: AnimatedFloatButtonBar(
+                        textFirstButton: 'Khôi phục',
+                        textSecondButton: 'Xóa vĩnh viễn',
+                        firstButton: Icons.undo,
+                        secondButton: Icons.delete_outline,
+                        duration: 200,
+                        size: sizeOfWidth * 0.9,
+                        ontapFirstButton: () {
+                          Note note = context
+                              .read<NoteManager>()
+                              .deleteNotes
+                              .firstWhere((element) => element.id == noteId);
+                          context.read<NoteManager>().addNote(
+                              note: note, preferences: preferences, key: 0);
+                        },
+                        ontapSecondButton: () {
+                          context.read<NoteManager>().removeNote(
+                              id: noteId, preferences: preferences, key: 1);
+                        })
+                ));
+          }
+          return Container();
+
         });
   }
 
   setSizeOfMedia() {
-    Size size = mediaSizePresenter.getMediaSize(context);
-    sizeOfHeight = size.height;
-    sizeOfWidth = size.width;
+    mediaSizePresenter.getMediaSize(context);
   }
 
   void innitRemoveList() async {}

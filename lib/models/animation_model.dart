@@ -6,13 +6,16 @@ class AnimationModel with ChangeNotifier {
   bool delay = false;
 
   changeAnimation({required bool value}) {
+    print('onchange is $value');
     animation = value;
     notifyListeners();
     if (value) {
+      print('value true model');
       delay = true;
       notifyListeners();
       Future.delayed( const Duration( milliseconds: 200),(){
         delay = false;
+        print('delay = false true model');
         notifyListeners();
       });
     } else {

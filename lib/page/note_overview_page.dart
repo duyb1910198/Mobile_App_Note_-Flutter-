@@ -98,10 +98,8 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> /*implements ExitAp
             floatingActionButton: FloatingActionButton(
                       onPressed: () {
                         newNote();
+                        // context.read<NoteManager>().deleteAll(preferences: preferences);
                       },
-                      // onPressed: () {
-                      //   context.read<NoteManager>().deleteAll(preferences: preferences);
-                      // },
                       tooltip: 'Increment',
                       backgroundColor: AppColor.appBarColor,
                       child: const Icon(Icons.add),
