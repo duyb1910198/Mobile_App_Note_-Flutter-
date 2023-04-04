@@ -715,7 +715,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
 
   chooseLabel({required position}) {}
 
-  void setImageWidthItem() {
+  setImageWidthItem() {
     imagesWidth.clear();
     if (widget.notes.images!.isNotEmpty) {
       for (int i = 0; i < widget.notes.images!.length; i++) {

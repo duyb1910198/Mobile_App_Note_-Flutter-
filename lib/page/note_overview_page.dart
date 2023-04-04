@@ -28,7 +28,7 @@ class NoteOverviewPage extends StatefulWidget {
   _NoteOverviewPageState createState() => _NoteOverviewPageState();
 }
 
-class _NoteOverviewPageState extends State<NoteOverviewPage> /*implements ExitAppView */{
+class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppView{
   late SharedPreferences preferences;
   int tile = 0;
   int labelSize = 25;
@@ -47,10 +47,10 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> /*implements ExitAp
     initPreference();
   }
 
-  // _NoteOverviewPageState(){
-  //   exitAppPresenter = ExitAppPresenter();
-  //   exitAppPresenter.attachView(this);
-  // }
+  _NoteOverviewPageState(){
+    exitAppPresenter = ExitAppPresenter();
+    exitAppPresenter.attachView(this);
+  }
 
   initPreference() async {
     preferences = await SharedPreferences.getInstance();
@@ -76,34 +76,37 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> /*implements ExitAp
     return FutureBuilder(
         future: initPreference(),
         builder: (context, snapshot) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(
-                'Ghi chú',
-                style: AppStyle.senH4.copyWith(color: Colors.white),
+          return WillPopScope(
+            onWillPop: exitApp,
+            child: Scaffold(
+              appBar: AppBar(
+                title: Text(
+                  'Ghi chú',
+                  style: AppStyle.senH4.copyWith(color: Colors.white),
+                ),
+                actions: <Widget>[
+                  buildSortTypeIcon(tile),
+                ],
+                backgroundColor: AppColor.appBarColor,
               ),
-              actions: <Widget>[
-                buildSortTypeIcon(tile),
-              ],
-              backgroundColor: AppColor.appBarColor,
+              body: NoteTile(
+                tile: tile,
+                main: true,
+              ),
+              drawer: const AppDrawer(),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerFloat,
+              floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
+              floatingActionButton: FloatingActionButton(
+                        onPressed: () {
+                          newNote();
+                          // context.read<NoteManager>().deleteAll(preferences: preferences);
+                        },
+                        tooltip: 'Increment',
+                        backgroundColor: AppColor.appBarColor,
+                        child: const Icon(Icons.add),
+                      )
             ),
-            body: NoteTile(
-              tile: tile,
-              main: true,
-            ),
-            drawer: const AppDrawer(),
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-            floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-            floatingActionButton: FloatingActionButton(
-                      onPressed: () {
-                        newNote();
-                        // context.read<NoteManager>().deleteAll(preferences: preferences);
-                      },
-                      tooltip: 'Increment',
-                      backgroundColor: AppColor.appBarColor,
-                      child: const Icon(Icons.add),
-                    )
           );
         });
   }
@@ -174,37 +177,37 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> /*implements ExitAp
         MaterialPageRoute(builder: (context) => DetailNotePage(notes: note)));
   }
 
-  // @override
-  // onExitApp(Future<bool> isExit) {
-  //   setState(() {
-  //     this.isExit = isExit;
-  //     print('onExitApp a');
-  //     if (this.isExit != null) {
-  //       print('onExitApp b');
-  //       checkExit();
-  //   }
-  //   });
-  // }
-  //
-  // Future<bool> exitApp() async {
-  //   print('this.isExit bef ');
-  //   await exitAppPresenter.exitApp(context: context);
-  //    if (this.isExit != null) {
-  //     if(await Future.value(this.isExit)) {
-  //       exit(0);
-  //     } else {
-  //       return false;
-  //     }
-  //   } else {
-  //     return false;
-  //   }
-  // }
-  //
-  // checkExit() async {
-  //   print('this.isExit ');
-  //   print('this.isExit value ${this.isExit}');
-  //   if(await Future.value(this.isExit)) {
-  //   exit(0);
-  //   }
-  // }
+  @override
+  onExitApp(Future<bool> isExit) {
+    setState(() {
+      this.isExit = isExit;
+      print('onExitApp a');
+      if (this.isExit != null) {
+        print('onExitApp b');
+        checkExit();
+    }
+    });
+  }
+
+  Future<bool> exitApp() async {
+    print('this.isExit bef ');
+     exitAppPresenter.exitApp(context: context);
+     if (this.isExit != null) {
+      if(await Future.value(this.isExit)) {
+        exit(0);
+      } else {
+        return false;
+      }
+    } else {
+      return true;
+    }
+  }
+
+  checkExit() async {
+    print('this.isExit ');
+    print('this.isExit value ${this.isExit}');
+    if(await Future.value(this.isExit)) {
+    exit(0);
+    }
+  }
 }

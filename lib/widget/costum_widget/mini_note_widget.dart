@@ -29,7 +29,8 @@ class MiniNoteWidget extends StatefulWidget {
   MiniNoteWidgetState createState() => MiniNoteWidgetState();
 }
 
-class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageView {
+class MiniNoteWidgetState extends State<MiniNoteWidget>
+    implements WidthImageView {
   late SharedPreferences preferences;
   double w = 0;
 
@@ -64,16 +65,17 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageVie
         future: initData(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return Consumer<NoteManager>(builder: (context, myModelNote, child) {
+            return Consumer<NoteManager>(
+                builder: (context, myModelNote, child) {
               int index = widget.keyCheck == 0
                   ? context
-                  .read<NoteManager>()
-                  .notes
-                  .indexWhere((element) => element.id == widget.note.id)
+                      .read<NoteManager>()
+                      .notes
+                      .indexWhere((element) => element.id == widget.note.id)
                   : context
-                  .read<NoteManager>()
-                  .deleteNotes
-                  .indexWhere((element) => element.id == widget.note.id);
+                      .read<NoteManager>()
+                      .deleteNotes
+                      .indexWhere((element) => element.id == widget.note.id);
               if (index != -1) {
                 return Container(
                   key: keyMiniNote,
@@ -91,8 +93,8 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageVie
                     ],
                     image: DecorationImage(
                         image: AssetImage(myModelNote
-                            .findById(widget.note.id)!
-                            .backgroundImage ??
+                                .findById(widget.note.id)!
+                                .backgroundImage ??
                             AssetsPath.empty1),
                         fit: BoxFit.cover),
                   ),
@@ -105,37 +107,39 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageVie
                             children: [
                               Consumer<NoteManager>(
                                   builder: (context, myModel, child) {
-                                    return SizedBox(
-                                        height: heightImages,
-                                        child: buildImagesView(
-                                            images: (myModel
+                                return SizedBox(
+                                    height: heightImages,
+                                    child: buildImagesView(
+                                        images: (myModel
                                                 .findById(widget.note.id)!
                                                 .images ??
-                                                [])));
-                                  }),
-                              myModelNote.findById(widget.note.id)!.labelImages ==
-                                  ''
+                                            [])));
+                              }),
+                              myModelNote
+                                          .findById(widget.note.id)!
+                                          .labelImages ==
+                                      ''
                                   ? Container()
                                   : SizedBox(
-                                width: double.infinity,
-                                child: Consumer<FontSizeChangnotifier>(
-                                  builder: (context, myModel, child) {
-                                    return Text(
-                                      '${myModelNote.findById(widget.note.id)!.labelImages}',
-                                      style: AppStyle.senH4.copyWith(
-                                          fontSize: myModel.labelSize),
-                                    );
-                                  },
-                                ),
-                              ),
+                                      width: double.infinity,
+                                      child: Consumer<FontSizeChangnotifier>(
+                                        builder: (context, myModel, child) {
+                                          return Text(
+                                            '${myModelNote.findById(widget.note.id)!.labelImages}',
+                                            style: AppStyle.senH4.copyWith(
+                                                fontSize: myModel.labelSize),
+                                          );
+                                        },
+                                      ),
+                                    ),
                               SizedBox(
                                 width: double.infinity,
                                 child: Consumer<FontSizeChangnotifier>(
                                   builder: (context, myModel, child) {
                                     return Text(
                                         myModelNote
-                                            .findById(widget.note.id)!
-                                            .content ??
+                                                .findById(widget.note.id)!
+                                                .content ??
                                             '',
                                         style: AppStyle.senH4.copyWith(
                                             fontSize: myModel.contentSize));
@@ -145,42 +149,45 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageVie
                               checkExist()
                                   ? Container()
                                   : SizedBox(
-                                  height: 26,
-                                  child: Consumer<NoteManager>(
-                                    builder: (context, myModel, child) {
-                                      int index = myModel.notes.indexWhere(
+                                      height: 26,
+                                      child: Consumer<NoteManager>(
+                                        builder: (context, myModel, child) {
+                                          int index = myModel.notes.indexWhere(
                                               (element) =>
-                                          element.id == widget.note.id);
-                                      return MasonryGridView.count(
-                                          scrollDirection: Axis.horizontal,
-                                          crossAxisSpacing: 2,
-                                          mainAxisSpacing: 10,
-                                          crossAxisCount: 1,
-                                          itemCount: index != -1
-                                              ? myModel.notes
-                                              .firstWhere((element) =>
-                                          element.id ==
-                                              widget.note.id)
-                                              .label
-                                              ?.length
-                                              : 0,
-                                          shrinkWrap: true,
-                                          itemBuilder: (ctx, i) =>
-                                              buildLabelView(
-                                                  l: context
-                                                      .read<LabelManager>()
-                                                      .labels[
-                                                  widget
-                                                      .note.label![i]]));
-                                    },
-                                  )),
+                                                  element.id == widget.note.id);
+                                          return MasonryGridView.count(
+                                              scrollDirection: Axis.horizontal,
+                                              crossAxisSpacing: 2,
+                                              mainAxisSpacing: 10,
+                                              crossAxisCount: 1,
+                                              itemCount: index != -1
+                                                  ? myModel.notes
+                                                      .firstWhere((element) =>
+                                                          element.id ==
+                                                          widget.note.id)
+                                                      .label
+                                                      ?.length
+                                                  : 0,
+                                              shrinkWrap: true,
+                                              itemBuilder: (ctx, i) =>
+                                                  buildLabelView(
+                                                      l:
+                                                          context
+                                                              .read<
+                                                                  LabelManager>()
+                                                              .labels[widget
+                                                                  .note.label![
+                                                              i]]));
+                                        },
+                                      )),
                             ]),
                       ),
                       onTap: () {
                         if (widget.keyCheck == 0) {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => DetailNotePage(
-                                  notes: myModelNote.findById(widget.note.id)!)));
+                                  notes:
+                                      myModelNote.findById(widget.note.id)!)));
                         }
                       },
                     ),
@@ -334,8 +341,10 @@ class MiniNoteWidgetState extends State<MiniNoteWidget> implements WidthImageVie
 
   @override
   onWidthOfImage(double width) {
-    setState(() {
-      imagesWidth.add(width);
-    });
+    if (this.mounted) {
+      setState(() {
+        imagesWidth.add(width);
+      });
+    }
   }
 }

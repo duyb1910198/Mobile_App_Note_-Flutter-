@@ -221,9 +221,38 @@ class NoteManager with ChangeNotifier {
     return id;
   }
 
-  bool maxElement(List<String> checkList, int element) {
-    for (int i = 0; i < checkList.length; i++) {
-      if (int.parse(checkList[i]) > element) {
+  WidgetHeight getMaxElement(List<WidgetHeight> list) {
+    WidgetHeight element = list[0];
+    for (int i = 1; i < list.length; i++) {
+      if (list[i].height > element.height) {
+        element = list[i];
+      }
+    }
+    return element;
+  }
+
+  WidgetHeight getMinElement(List<WidgetHeight> list) {
+    WidgetHeight element = list[0];
+    for (int i = 1; i < list.length; i++) {
+      if (list[i].height < element.height) {
+        element = list[i];
+      }
+    }
+    return element;
+  }
+
+  bool maxElement(List<String> list, int element) {
+    for (int i = 0; i < list.length; i++) {
+      if (int.parse(list[i]) > element) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  bool minElement(List<int> list, int element) {
+    for (int i = 0; i < list.length; i++) {
+      if (list[i] < element) {
         return false;
       }
     }
@@ -422,7 +451,16 @@ class NoteManager with ChangeNotifier {
         }
       case NoteTile.TYPE_STAGGERED:
         {
-          return column1 >= column2 ? column1 : column2;
+          int counter = -1;
+          if (pin) {
+            counter = counterPin;
+          } else {
+            counter = counterNote;
+          }
+          if (counter == 1) {
+            return column2 + column1;
+          }
+          return (column2 + column1) / 2 + getMaxElement(pin ? pinNotesSize : miniNotesSize).height;
         }
       default:
         {
