@@ -165,7 +165,11 @@ class NoteManager with ChangeNotifier {
         if (key == 0) {
           removeElement = int.parse(checkList.removeAt(i));
           addNote(note: notes[index], preferences: preferences, key: 1);
-          notes.removeAt(index);
+          Note temp = notes.removeAt(index);
+          notesLabel.remove(temp);
+          if (temp.pin) {
+            pinsLabel.remove(temp);
+          }
           removeSize(pin: false);
         } else {
           removeElement = int.parse(checkList.removeAt(i));
@@ -417,6 +421,7 @@ class NoteManager with ChangeNotifier {
         }
       }
     }
+    notifyListeners();
   }
 
   addMiniNotesSize(

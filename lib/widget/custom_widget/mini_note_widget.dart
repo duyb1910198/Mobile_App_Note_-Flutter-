@@ -297,6 +297,7 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
         final RenderBox box =
             keyMiniNote.currentContext!.findRenderObject() as RenderBox;
         setState(() {
+          print('update yes');
           sizePinNote = box.size;
           bool add = false;
           if (heightTest == 0) {
@@ -324,21 +325,28 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
   }
 
   checkExist() {
-    return widget.keyCheck == 0
-        ? context
-                .read<NoteManager>()
-                .notes
-                .firstWhere((element) => element.id == widget.note.id)
-                .label
-                ?.isEmpty ??
-            false
-        : context
-                .read<NoteManager>()
-                .deleteNotes
-                .firstWhere((element) => element.id == widget.note.id)
-                .label
-                ?.isEmpty ??
-            false;
+    int index = context
+        .read<NoteManager>()
+        .notes
+        .indexWhere((element) => element.id == widget.note.id);
+    if (index != -1) {
+      return widget.keyCheck == 0
+          ? context
+                  .read<NoteManager>()
+                  .notes
+                  .firstWhere((element) => element.id == widget.note.id)
+                  .label
+                  ?.isEmpty ??
+              false
+          : context
+                  .read<NoteManager>()
+                  .deleteNotes
+                  .firstWhere((element) => element.id == widget.note.id)
+                  .label
+                  ?.isEmpty ??
+              false;
+    }
+    return false;
   }
 
   @override
