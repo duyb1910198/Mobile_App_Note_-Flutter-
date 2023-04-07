@@ -172,7 +172,7 @@ class _NoteOverviewPageState extends State<NoteOverviewPage>
         : context.read<NoteManager>().firstIdRemove();
     Note note = Note(id: id, content: '', images: [], label: []);
     Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => DetailNotePage(notes: note)));
+        MaterialPageRoute(builder: (context) => DetailNotePage(note: note)));
   }
 
   Future<bool> exitApp() async {

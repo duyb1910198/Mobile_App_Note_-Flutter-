@@ -29,9 +29,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../manager/background_manager.dart';
 
 class DetailNotePage extends StatefulWidget {
-  Note notes;
+  Note note;
 
-  DetailNotePage({required this.notes, super.key});
+  DetailNotePage({required this.note, super.key});
 
   TextEditingController controllerLabelImage = TextEditingController();
   TextEditingController controllerContent = TextEditingController();
@@ -40,21 +40,18 @@ class DetailNotePage extends StatefulWidget {
   _DetailNotePageState createState() => _DetailNotePageState();
 }
 
-class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeView,WidthImageView {
+class _DetailNotePageState extends State<DetailNotePage>
+    implements MediaSizeView, WidthImageView {
   late int imagesSize;
-  bool? check = false;
   double sizeOfHeight = 0;
   double sizeOfWidth = 0;
   late SharedPreferences preferences;
   int labelSize = 25;
   int contentSize = 18;
   int pressImageId = -1;
-  double w = 0;
-  double imageHeight = 300;
-  List<String> imageWidth = [];
+  double get imageHeight => widget.note.images!.isEmpty ? 0 : 300;
   List<double> imagesWidth = [];
   List<CheckBoxModal> checkBoxModals = [];
-  bool updateHeight = false;
   late MediaSizePresenter mediaSizePresenter;
   late WidthImagePresenter widthImagePresenter;
 
@@ -65,22 +62,22 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     widthImagePresenter.attachView(this);
   }
 
-  Note get note => widget.notes;
+  Note get note => widget.note;
 
   @override
   void initState() {
     super.initState();
-    widget.controllerContent.text = widget.notes.content ?? '';
+    widget.controllerContent.text = widget.note.content ?? '';
     widget.controllerContent.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.controllerContent.text.length));
-    widget.controllerLabelImage.text = widget.notes.labelImages ?? '';
+    widget.controllerLabelImage.text = widget.note.labelImages ?? '';
     widget.controllerLabelImage.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.controllerLabelImage.text.length));
   }
 
   initData() {
     setPreference();
-    imagesSize = widget.notes.images!.length;
+    imagesSize = widget.note.images!.length;
     setImageWidthItem();
     setSizeOfMedia();
   }
@@ -96,38 +93,36 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
           onWillPop: isBackPreviousPage,
           child: Scaffold(
             floatingActionButtonLocation:
-            FloatingActionButtonLocation.centerDocked,
+                FloatingActionButtonLocation.centerDocked,
             floatingActionButton: Padding(
                 padding: const EdgeInsets.only(bottom: 50),
                 child: Consumer<AnimationModel>(
                     builder: (context, myModel, child) {
-                      return AnimatedFloatButtonBar(
-                          textFirstButton: 'Xóa ảnh',
-                          textSecondButton: 'Hủy',
-                          firstButton: Icons.delete_outline,
-                          secondButton: Icons.cancel_outlined,
-                          duration: 200,
-                          size: sizeOfWidth * 0.9,
-                          ontapFirstButton: () {
-                            removeImage(index: pressImageId);
-                          },
-                          ontapSecondButton: () {});
-                    }
-                )),
+                  return AnimatedFloatButtonBar(
+                      textFirstButton: 'Xóa ảnh',
+                      textSecondButton: 'Hủy',
+                      firstButton: Icons.delete_outline,
+                      secondButton: Icons.cancel_outlined,
+                      duration: 200,
+                      size: sizeOfWidth * 0.9,
+                      ontapFirstButton: () {
+                        removeImage(index: pressImageId);
+                      },
+                      ontapSecondButton: () {});
+                })),
             body: DecoratedBox(
               decoration: BoxDecoration(
-                  color:
-                      Color(widget.notes.backgroundColor ?? ShareKey.white),
+                  color: Color(widget.note.backgroundColor ?? ShareKey.white),
                   image: DecorationImage(
                       image: AssetImage(
-                          widget.notes.backgroundImage ?? AssetsPath.empty1),
+                          widget.note.backgroundImage ?? AssetsPath.empty1),
                       fit: BoxFit.cover)),
               child: SizedBox(
                   height: sizeOfHeight,
                   width: sizeOfWidth,
                   child: buildDetailNoteLayout(
                     size: imagesSize,
-                    images: widget.notes.images ?? [],
+                    images: widget.note.images ?? [],
                   )),
             ),
             // buildBodyLayout(
@@ -187,12 +182,11 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                widget.notes.images!.isNotEmpty
-                    ? Container(
-                        height: imageHeight,
-                        child: buildImagesView(images: images, size: size),
-                      )
-                    : Container(),
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  height: widget.note.images!.isNotEmpty ? imageHeight : 0,
+                  child: buildImagesView(images: images, size: size),
+                ),
                 Consumer<FontSizeChangnotifier>(
                   builder: (context, myModel, child) {
                     return Container(
@@ -201,18 +195,20 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                       color: AppColor.labelImageColor,
                       child: TextField(
                         onTap: () {
-                          context.read<AnimationModel>().changeAnimation(value: false);
+                          context
+                              .read<AnimationModel>()
+                              .changeAnimation(value: false);
                         },
-                        style:
-                            AppStyle.senH4.copyWith(fontSize: myModel.labelSize),
+                        style: AppStyle.senH4
+                            .copyWith(fontSize: myModel.labelSize),
                         controller: widget.controllerLabelImage,
                         onChanged: (value) {
                           setState(() {
-                            widget.notes.labelImages =
+                            widget.note.labelImages =
                                 widget.controllerLabelImage.text;
                             context
                                 .read<NoteManager>()
-                                .setUpdateHeight(id: widget.notes.id);
+                                .setUpdateHeight(id: widget.note.id);
                           });
                         },
                         maxLines: null,
@@ -237,11 +233,11 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                           controller: widget.controllerContent,
                           onChanged: (value) {
                             setState(() {
-                              widget.notes.content =
+                              widget.note.content =
                                   widget.controllerContent.text;
                               context
                                   .read<NoteManager>()
-                                  .setUpdateHeight(id: widget.notes.id);
+                                  .setUpdateHeight(id: widget.note.id);
                             });
                           },
                           maxLines: null,
@@ -251,7 +247,9 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                             focusedBorder: InputBorder.none,
                           ),
                           onTap: () {
-                            context.read<AnimationModel>().changeAnimation(value: false);
+                            context
+                                .read<AnimationModel>()
+                                .changeAnimation(value: false);
                           },
                         ),
                         SizedBox(
@@ -259,8 +257,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                             child: Consumer<NoteManager>(
                               builder: (context, myModel, child) {
                                 int index = myModel.notes.indexWhere(
-                                    (element) => element.id == widget.notes.id);
-                                // print('leng is: ${index != -1 ? myModel.notes.firstWhere((element) => element.id == widget.notes.id).label?.length : 0}');
+                                    (element) => element.id == widget.note.id);
                                 return MasonryGridView.count(
                                     scrollDirection: Axis.horizontal,
                                     crossAxisSpacing: 2,
@@ -269,15 +266,15 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                                     itemCount: index != -1
                                         ? myModel.notes
                                             .firstWhere((element) =>
-                                                element.id == widget.notes.id)
+                                                element.id == widget.note.id)
                                             .label
                                             ?.length
                                         : 0,
                                     shrinkWrap: true,
                                     itemBuilder: (ctx, i) => buildLabelView(
-                                        l: context
+                                        text: context
                                             .read<LabelManager>()
-                                            .labels[widget.notes.label![i]]));
+                                            .labels[widget.note.label![i]]));
                               },
                             )),
                       ],
@@ -337,12 +334,12 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
 
   Widget buildPinIcon() {
     return IconButton(
-      icon: widget.notes.pin
+      icon: widget.note.pin
           ? const Icon(CommunityMaterialIcons.pin)
           : const Icon(CommunityMaterialIcons.pin_outline),
       onPressed: () {
         setState(() {
-          widget.notes.pin = !widget.notes.pin;
+          widget.note.pin = !widget.note.pin;
         });
       },
       color: AppColor.graylight,
@@ -419,7 +416,6 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                     IconTextButton(
                         label: 'Xoá',
                         onTap: () {
-                          showMessage(mess: 'Xoá');
                           deleteNote();
                           Navigator.pop(context);
                         },
@@ -451,7 +447,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                                                   .length,
                                               shrinkWrap: true,
                                               itemBuilder: (ctx, i) {
-                                                int index = widget.notes.label!
+                                                int index = widget.note.label!
                                                     .indexWhere((element) =>
                                                         element == i);
                                                 CheckBoxModal checkBoxModal =
@@ -493,7 +489,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                                                                         false;
                                                                 if (value ??
                                                                     false) {
-                                                                  widget.notes
+                                                                  widget.note
                                                                       .label!
                                                                       .add(i);
                                                                   context
@@ -501,9 +497,9 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                                                                           NoteManager>()
                                                                       .updateNote(
                                                                           note:
-                                                                              widget.notes);
+                                                                              widget.note);
                                                                 } else {
-                                                                  widget.notes
+                                                                  widget.note
                                                                       .label!
                                                                       .remove(
                                                                           i);
@@ -512,14 +508,14 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                                                                           NoteManager>()
                                                                       .updateNote(
                                                                           note:
-                                                                              widget.notes);
+                                                                              widget.note);
                                                                 }
                                                                 context
                                                                     .read<
                                                                         NoteManager>()
                                                                     .setUpdateHeight(
                                                                         id: widget
-                                                                            .notes
+                                                                            .note
                                                                             .id);
                                                               });
                                                             },
@@ -547,8 +543,8 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     );
   }
 
-  Widget buildLabelView({required String l}) {
-    String label = l;
+  Widget buildLabelView({required String text}) {
+    String label = text;
     return DecoratedBox(
       decoration: const BoxDecoration(
         borderRadius: BorderRadius.all(Radius.circular(8)),
@@ -602,10 +598,10 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                     label: 'Chụp ảnh',
                     onTap: () {
                       _pickImage(source: ImageSource.camera);
-                      if (widget.notes.images!.isEmpty) {
+                      if (widget.note.images!.isEmpty) {
                         context
                             .read<NoteManager>()
-                            .setUpdateHeight(id: widget.notes.id);
+                            .setUpdateHeight(id: widget.note.id);
                       }
                     },
                     icon: Icons.camera_alt_outlined,
@@ -614,10 +610,10 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                     label: 'Thêm hình ảnh',
                     onTap: () {
                       _pickImage(source: ImageSource.gallery);
-                      if (widget.notes.images!.isEmpty) {
+                      if (widget.note.images!.isEmpty) {
                         context
                             .read<NoteManager>()
-                            .setUpdateHeight(id: widget.notes.id);
+                            .setUpdateHeight(id: widget.note.id);
                       }
                     },
                     icon: Icons.image_outlined,
@@ -634,11 +630,11 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
 
   setNote({required String file}) {
     setState(() {
-      widget.notes.images!.add(file);
+      widget.note.images!.add(file);
     });
     context
         .read<NoteManager>()
-        .addNote(note: widget.notes, preferences: preferences, key: 0);
+        .addNote(note: widget.note, preferences: preferences, key: 0);
   }
 
   // set list width of image = width(original image) * height(size of parent widget) / height (original image)
@@ -695,14 +691,14 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
             setState(() {
               if (type) {
                 if (image != AssetsPath.empty) {
-                  if (widget.notes.backgroundImage != image) {
-                    widget.notes.backgroundImage = image;
+                  if (widget.note.backgroundImage != image) {
+                    widget.note.backgroundImage = image;
                   }
                 } else {
-                  widget.notes.backgroundImage = null;
+                  widget.note.backgroundImage = null;
                 }
-              } else if (widget.notes.backgroundColor != image) {
-                widget.notes.backgroundColor = image;
+              } else if (widget.note.backgroundColor != image) {
+                widget.note.backgroundColor = image;
               }
             });
           },
@@ -732,13 +728,9 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     } else {
       final file = File(xFile.path);
       await setSizeOfWidthImage(file, imageHeight);
-      double width = w;
-      imagesWidth.add(width);
       setNote(file: xFile.path);
     }
   }
-
-  showMessage({required String mess}) {}
 
   void setPreference() async {
     preferences = await SharedPreferences.getInstance();
@@ -749,14 +741,14 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
   void setNotePreference() {
     context
         .read<NoteManager>()
-        .addNote(note: widget.notes, preferences: preferences, key: 0);
+        .addNote(note: widget.note, preferences: preferences, key: 0);
   }
 
   deleteNote() {
-    if (context.read<NoteManager>().existNote(id: widget.notes.id)) {
+    if (context.read<NoteManager>().existNote(id: widget.note.id)) {
       context
           .read<NoteManager>()
-          .removeNote(id: widget.notes.id, preferences: preferences, key: 0);
+          .removeNote(id: widget.note.id, preferences: preferences, key: 0);
     }
     Navigator.pop(context);
   }
@@ -765,17 +757,17 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
 
   setImageWidthItem() {
     imagesWidth.clear();
-    if (widget.notes.images!.isNotEmpty) {
-      for (int i = 0; i < widget.notes.images!.length; i++) {
-        String image = widget.notes.images![i];
+    if (widget.note.images!.isNotEmpty) {
+      for (int i = 0; i < widget.note.images!.length; i++) {
+        String image = widget.note.images![i];
         final file = File(image);
         setSizeOfWidthImage(file, imageHeight);
       }
     }
   }
 
-  backPreviousPage()  {
-    if (widget.notes.isVaild(note: widget.notes)) {
+  backPreviousPage() {
+    if (widget.note.isVaild(note: widget.note)) {
       setNotePreference();
       context.read<NoteManager>().setPinNotes();
       Navigator.pop(context);
@@ -785,7 +777,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
   }
 
   Future<bool> isBackPreviousPage() async {
-    if (widget.notes.isVaild(note: widget.notes)) {
+    if (widget.note.isVaild(note: widget.note)) {
       setNotePreference();
       context.read<NoteManager>().setPinNotes();
       Navigator.pop(context);
@@ -815,8 +807,8 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     if (index < imagesWidth.length) {
       setState(() {
         imagesWidth.removeAt(index);
-        if (widget.notes.images != null) {
-          widget.notes.images!.removeAt(index);
+        if (widget.note.images != null) {
+          widget.note.images!.removeAt(index);
         }
       });
     }

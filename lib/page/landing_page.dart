@@ -44,17 +44,12 @@ class _LandingPage extends State<LandingPage> {
             ),
             Expanded(
                 flex: 4,
-                child: InkWell(
-                  onTap: () {},
-                  child: Ink(
-                    height: double.maxFinite,
-                    width: double.maxFinite,
-                    decoration: const BoxDecoration(
-                        borderRadius: BorderRadius.all(Radius.circular(25)),
-                        image: DecorationImage(
-                            image: AssetImage(AssetsPath.imageLogo),
-                            fit: BoxFit.fitWidth)),
-                  ),
+                child: Container(
+                  decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.all(Radius.circular(25)),
+                      image: DecorationImage(
+                          image: AssetImage(AssetsPath.imageLogo),
+                          fit: BoxFit.fitWidth)),
                 )),
             Expanded(
               flex: 1,
@@ -71,7 +66,9 @@ class _LandingPage extends State<LandingPage> {
                             MaterialPageRoute(
                                 builder: (_) => const NoteOverviewPage()),
                             (route) => false)
-                        : Fluttertoast.showToast(msg: 'Vui lòng cấp quền lưu trữ ở phần cài đặt', toastLength: Toast.LENGTH_LONG);
+                        : Fluttertoast.showToast(
+                            msg: 'Vui lòng cấp quền lưu trữ ở phần cài đặt',
+                            toastLength: Toast.LENGTH_LONG);
                   },
                   child: const Icon(
                     Icons.navigate_next,

@@ -30,18 +30,7 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
   double sizeOfHeight = 0;
   double sizeOfWidth = 0;
 
-  // List<Note> notes = NoteManager().notes; // demo data
-  double viewHeight = 0;
-  bool pin = false;
   late SharedPreferences preferences;
-  GlobalKey keyNotes = GlobalKey();
-  GlobalKey keyPinNotes = GlobalKey();
-  double notesHeight = 0;
-  double pinHeight = 0;
-  late Offset position;
-  double floatButtonWidth = 0;
-
-  Size sizeNote = Size(0, 0);
 
   bool isLongPress = false;
 
@@ -129,7 +118,7 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
                     padding: const EdgeInsets.only(bottom: 50),
                     child: AnimatedFloatButtonBar(
                         textFirstButton: 'Khôi phục',
-                        textSecondButton: 'Xóa vĩnh viễn',
+                        textSecondButton: 'Xóa vanish viễn',
                         firstButton: Icons.undo,
                         secondButton: Icons.delete_outline,
                         duration: 200,

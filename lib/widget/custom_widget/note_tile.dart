@@ -34,20 +34,9 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
   double sizeOfWidth = 0;
 
   // List<Note> notes = NoteManager().notes; // demo data
-  double viewHeight = 0;
-  bool pin = false;
   late SharedPreferences preferences;
-  GlobalKey keyNotes = GlobalKey();
-  GlobalKey keyPinNotes = GlobalKey();
-  double notesHeight = -1;
-  double pinHeight = 0;
-  late Offset position;
-
-  Size sizeNote = const Size(0, 0);
-  Size sizePinNote = const Size(0, 0);
 
   late MediaSizePresenter mediaSizePresenter;
-
 
   _NoteTileState() {
     mediaSizePresenter = MediaSizePresenter();
@@ -107,7 +96,9 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
                             context.read<NoteManager>().removeNote(
                                 id: myModel.pressId, preferences: preferences, key: 0);
                           },
-                          ontapSecondButton: () {});
+                          ontapSecondButton: () {
+                            context.read<AnimationModel>().setNotePress(id: -1);
+                          });
                     }
                   )),
               body: SingleChildScrollView(

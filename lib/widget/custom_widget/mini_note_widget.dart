@@ -22,7 +22,7 @@ class MiniNoteWidget extends StatefulWidget {
   final bool? pin;
   final int keyCheck;
 
-  MiniNoteWidget(
+  const MiniNoteWidget(
       {super.key, required this.note, this.pin, required this.keyCheck});
 
   @override
@@ -32,7 +32,6 @@ class MiniNoteWidget extends StatefulWidget {
 class MiniNoteWidgetState extends State<MiniNoteWidget>
     implements WidthImageView {
   late SharedPreferences preferences;
-  double w = 0;
 
   double get heightImages => widget.note.images!.isEmpty ? 0 : 100;
 
@@ -193,7 +192,7 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                           if (widget.keyCheck == 0) {
                             Navigator.of(context).push(MaterialPageRoute(
                                 builder: (context) => DetailNotePage(
-                                    notes: myModelNote
+                                    note: myModelNote
                                         .findById(widget.note.id)!)));
                           }
                         },
