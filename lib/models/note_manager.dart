@@ -54,11 +54,9 @@ class NoteManager with ChangeNotifier {
     notifyListeners();
   }
 
-  setCheckList(
-      {required int key,
-        required Note note,
-        required SharedPreferences preferences}) {
-
+  setCheckList({required int key,
+    required Note note,
+    required SharedPreferences preferences}) {
     List<String> checkList = getCheckList(preferences: preferences, key: key);
     String notesId = getCheckString(preferences: preferences, key: key);
     if (notesId == '') {
@@ -80,10 +78,9 @@ class NoteManager with ChangeNotifier {
     }
   }
 
-  addNote(
-      {required Note note,
-      required SharedPreferences preferences,
-      required int key}) {
+  addNote({required Note note,
+    required SharedPreferences preferences,
+    required int key}) {
     String noteString = jsonEncode(note);
     String notesId = getCheckString(preferences: preferences, key: key);
     List<String> checkList = getCheckList(preferences: preferences, key: key);
@@ -96,7 +93,7 @@ class NoteManager with ChangeNotifier {
         preferences: preferences);
 
     if (notesId == '') {
-      if (key == 0){
+      if (key == 0) {
         int index = deleteNotes.indexWhere((element) => element.id == note.id);
         if (index != -1) {
           removeNote(id: note.id, preferences: preferences, key: 1);
@@ -113,8 +110,9 @@ class NoteManager with ChangeNotifier {
           }
           break;
         } else if (i == checkList.length - 1) {
-          if (key == 0){
-            int index = deleteNotes.indexWhere((element) => element.id == note.id);
+          if (key == 0) {
+            int index = deleteNotes.indexWhere((element) =>
+            element.id == note.id);
             if (index != -1) {
               removeNote(id: note.id, preferences: preferences, key: 1);
             }
@@ -142,8 +140,11 @@ class NoteManager with ChangeNotifier {
     notifyListeners();
   }
 
-  removeNote({required int id, required SharedPreferences preferences, required int key}) {
-    final index = key == 0 ? notes.indexWhere((element) => element.id == id) : deleteNotes.indexWhere((element) => element.id == id);
+  removeNote(
+      {required int id, required SharedPreferences preferences, required int key}) {
+    final index = key == 0
+        ? notes.indexWhere((element) => element.id == id)
+        : deleteNotes.indexWhere((element) => element.id == id);
     String checkListString = '';
     int removeElement = -1;
     List<String> checkList = getCheckList(preferences: preferences, key: key);
@@ -181,7 +182,9 @@ class NoteManager with ChangeNotifier {
         shareKey: key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId,
         stringPreference: checkListString,
         preferences: preferences);
-    preferences.remove( key == 0 ? ShareKey.note + id.toString() : ShareKey.deleteNote + id.toString());
+    preferences.remove(
+        key == 0 ? ShareKey.note + id.toString() : ShareKey.deleteNote +
+            id.toString());
     setPinNotes();
 
     notifyListeners();
@@ -205,7 +208,9 @@ class NoteManager with ChangeNotifier {
 
   int getMaxId() {
     int id = notes[0].id;
-    int length = counterNote >= deleteNotesCount ? counterNote : deleteNotesCount;
+    int length = counterNote >= deleteNotesCount
+        ? counterNote
+        : deleteNotesCount;
     for (int i = 1; i < length; i++) {
       if (counterNote > i) {
         if (id < notes[i].id) {
@@ -257,6 +262,25 @@ class NoteManager with ChangeNotifier {
       }
     }
     return true;
+  }
+
+  getMaxSizeNote({required bool pin}) {
+    WidgetHeight max = WidgetHeight(id: -1, height: -1);
+    int id = -1;
+    if (pin) {
+      for (int i = 0; i < pinNotesSize.length; i++) {
+        if (pinNotesSize[i].height >= max.height) {
+          max = pinNotesSize[i];
+        }
+      }
+    } else {
+      for (int i = 0; i < miniNotesSize.length; i++) {
+        if (miniNotesSize[i].height >= max.height) {
+          max = miniNotesSize[i];
+        }
+      }
+    }
+    return max;
   }
 
   setNotes(List<Note> list) {
@@ -325,21 +349,23 @@ class NoteManager with ChangeNotifier {
     return list;
   }
 
-  List<String> getCheckList({required SharedPreferences preferences, required int key}) {
+  List<String> getCheckList(
+      {required SharedPreferences preferences, required int key}) {
     String notesId = getCheckString(preferences: preferences, key: key) ?? '';
     List<String> checkList = notesId.split(" ");
     return checkList;
   }
 
-  String getCheckString({required SharedPreferences preferences, required int key}) {
-    String notesId = preferences.getString(key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId) ?? '';
+  String getCheckString(
+      {required SharedPreferences preferences, required int key}) {
+    String notesId = preferences.getString(
+        key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId) ?? '';
     return notesId;
   }
 
-  setPreference(
-      {required String shareKey,
-      required String stringPreference,
-      required SharedPreferences preferences}) {
+  setPreference({required String shareKey,
+    required String stringPreference,
+    required SharedPreferences preferences}) {
     preferences.setString(shareKey, stringPreference);
   }
 
@@ -355,8 +381,7 @@ class NoteManager with ChangeNotifier {
               : ' ${_removeList[i].toString()}';
         }
         preferences.setString(ShareKey.removeList, temp);
-      } else {
-      }
+      } else {}
     }
   }
 
@@ -416,10 +441,14 @@ class NoteManager with ChangeNotifier {
       {required double height, required bool pin, required int id}) {
     if (pin) {
       int index = pinNotesSize.indexWhere((element) => element.id == id);
-      pinNotesSize[index] = WidgetHeight(id: id, height: height);
+      if ( index != -1) {
+        pinNotesSize[index] = WidgetHeight(id: id, height: height);
+      }
     } else {
       int index = miniNotesSize.indexWhere((element) => element.id == id);
-      miniNotesSize[index] = WidgetHeight(id: id, height: height);
+      if ( index != -1) {
+        miniNotesSize[index] = WidgetHeight(id: id, height: height);
+      }
     }
     notifyListeners();
   }
@@ -427,8 +456,6 @@ class NoteManager with ChangeNotifier {
   double getMiniNotesSize({required int type, required bool pin}) {
     double column1 = 0;
     double column2 = 0;
-    for ( int i = 0; i < pinNotesSize.length; i++) {
-    }
     if (pin) {
       if (pinNotesSize.isEmpty) return column1;
       column1 = getHeightColumn(true, pinNotesSize);
@@ -447,10 +474,12 @@ class NoteManager with ChangeNotifier {
         }
       case NoteTile.TYPE_GRID:
         {
+          print('check column 1 is $column1');
           return column1;
         }
       case NoteTile.TYPE_STAGGERED:
         {
+          print('NoteTile: TYPE_STAGGERED');
           int counter = -1;
           if (pin) {
             counter = counterPin;
@@ -458,9 +487,10 @@ class NoteManager with ChangeNotifier {
             counter = counterNote;
           }
           if (counter == 1) {
+            print('NoteTile: TYPE_STAGGERED counter == 1');
             return column2 + column1;
           }
-          return (column2 + column1) / 2 + getMaxElement(pin ? pinNotesSize : miniNotesSize).height;
+          return getStaggeredHeight(pin: pin);
         }
       default:
         {
@@ -506,5 +536,30 @@ class NoteManager with ChangeNotifier {
     preferences.remove(ShareKey.deleteNotesId);
     preferences.remove(ShareKey.removeList);
     notifyListeners();
+  }
+
+  getStaggeredHeight({required bool pin}) {
+
+    List<WidgetHeight> list = [];
+    list.addAll(pin ? pinNotesSize : miniNotesSize);
+    WidgetHeight max = getMaxElement(list);
+    double sizeCheck = getHeightList(list);
+
+    if (sizeCheck - max.height <= max.height ) {
+      return max.height;
+    }
+    int counter = pin ? pinNotesSize.length : miniNotesSize.length;
+
+    double column1 = pin ? pinNotesSize[0].height : miniNotesSize[0].height;
+    double column2 = 0;
+
+    for (int i = 1; i < counter; i ++) {
+      if (column1 >= column2) {
+        column2 += pin ? pinNotesSize[i].height : miniNotesSize[i].height;
+      } else {
+        column1 += pin ? pinNotesSize[i].height : miniNotesSize[i].height;
+      }
+    }
+    return column1 >= column2 ? column1 : column2;
   }
 }
