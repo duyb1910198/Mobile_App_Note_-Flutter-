@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:note/models/widget_height.dart';
 import 'package:note/values/share_keys.dart';
-import 'package:note/widget/costum_widget/note_tile.dart';
+import 'package:note/widget/custom_widget/note_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'note.dart';
@@ -191,7 +191,7 @@ class NoteManager with ChangeNotifier {
   }
 
   removeListIsEmpty() {
-    return _removeList.length == 0 ? true : false;
+    return _removeList.isEmpty ? true : false;
   }
 
   setRemoveList(List<int> list) {
@@ -199,7 +199,7 @@ class NoteManager with ChangeNotifier {
   }
 
   int firstIdRemove() {
-    if (notes.length == 0) {
+    if (notes.isEmpty) {
       return removeListIsEmpty() ? 1 : removeListMin();
     } else {
       return removeListIsEmpty() ? getMaxId() + 1 : removeListMin();
@@ -266,7 +266,6 @@ class NoteManager with ChangeNotifier {
 
   getMaxSizeNote({required bool pin}) {
     WidgetHeight max = WidgetHeight(id: -1, height: -1);
-    int id = -1;
     if (pin) {
       for (int i = 0; i < pinNotesSize.length; i++) {
         if (pinNotesSize[i].height >= max.height) {
@@ -317,8 +316,8 @@ class NoteManager with ChangeNotifier {
   }
 
   setHasLabel({required bool value, required int label}) {
-    this.hasLabel = value;
-    this.label = label;
+    hasLabel = value;
+    label = label;
     notifyListeners();
   }
 
@@ -351,7 +350,7 @@ class NoteManager with ChangeNotifier {
 
   List<String> getCheckList(
       {required SharedPreferences preferences, required int key}) {
-    String notesId = getCheckString(preferences: preferences, key: key) ?? '';
+    String notesId = getCheckString(preferences: preferences, key: key);
     List<String> checkList = notesId.split(" ");
     return checkList;
   }
@@ -474,12 +473,10 @@ class NoteManager with ChangeNotifier {
         }
       case NoteTile.TYPE_GRID:
         {
-          print('check column 1 is $column1');
           return column1;
         }
       case NoteTile.TYPE_STAGGERED:
         {
-          print('NoteTile: TYPE_STAGGERED');
           int counter = -1;
           if (pin) {
             counter = counterPin;
@@ -487,7 +484,6 @@ class NoteManager with ChangeNotifier {
             counter = counterNote;
           }
           if (counter == 1) {
-            print('NoteTile: TYPE_STAGGERED counter == 1');
             return column2 + column1;
           }
           return getStaggeredHeight(pin: pin);

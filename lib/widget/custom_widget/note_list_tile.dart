@@ -4,7 +4,7 @@ import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/models/route_manager.dart';
-import 'package:note/widget/costum_widget/mini_note_widget.dart';
+import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:provider/provider.dart';
 
 class NoteListTile extends StatefulWidget {

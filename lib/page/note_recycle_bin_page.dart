@@ -11,8 +11,8 @@ import 'package:note/presenter_view/media_size_view.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
-import 'package:note/widget/costum_widget/animated_floatbutton_bar.dart';
-import 'package:note/widget/costum_widget/mini_note_widget.dart';
+import 'package:note/widget/custom_widget/animated_float_button_bar.dart';
+import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
-import 'package:note/values/colors.dart';
+import 'package:note/presenter/media_size_presenter.dart';
+import 'package:note/presenter_view/media_size_view.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
-import 'package:note/widget/costum_widget/animated_floatbutton_bar.dart';
-import 'package:note/widget/costum_widget/note_grid_tile.dart';
-import 'package:note/widget/costum_widget/note_list_tile.dart';
-import 'package:note/widget/costum_widget/note_staggered_tile.dart';
+import 'package:note/widget/custom_widget/animated_float_button_bar.dart';
+import 'package:note/widget/custom_widget/note_grid_tile.dart';
+import 'package:note/widget/custom_widget/note_list_tile.dart';
+import 'package:note/widget/custom_widget/note_staggered_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -18,16 +19,16 @@ class NoteTile extends StatefulWidget {
   static const int TYPE_LIST = 0;
   static const int TYPE_GRID = 1;
   static const int TYPE_STAGGERED = 2;
-  final int? tile;
+  final int? type;
   final bool main;
 
-  const NoteTile({super.key, this.tile, required this.main});
+  const NoteTile({super.key, this.type, required this.main});
 
   @override
   _NoteTileState createState() => _NoteTileState();
 }
 
-class _NoteTileState extends State<NoteTile> {
+class _NoteTileState extends State<NoteTile> implements MediaSizeView {
   List<Note> notes = [];
   double sizeOfHeight = 0;
   double sizeOfWidth = 0;
@@ -45,7 +46,13 @@ class _NoteTileState extends State<NoteTile> {
   Size sizeNote = const Size(0, 0);
   Size sizePinNote = const Size(0, 0);
 
-  int idLongPress = -1;
+  late MediaSizePresenter mediaSizePresenter;
+
+
+  _NoteTileState() {
+    mediaSizePresenter = MediaSizePresenter();
+    mediaSizePresenter.attachView(this);
+  }
 
   @override
   void initState() {
@@ -87,18 +94,22 @@ class _NoteTileState extends State<NoteTile> {
                   FloatingActionButtonLocation.centerDocked,
               floatingActionButton: Padding(
                   padding: const EdgeInsets.only(bottom: 50),
-                  child: AnimatedFloatButtonBar(
-                      textFirstButton: 'Xóa',
-                      textSecondButton: 'Hủy',
-                      firstButton: Icons.delete_outline,
-                      secondButton: Icons.cancel_outlined,
-                      duration: 200,
-                      size: sizeOfWidth * 0.9,
-                      ontapFirstButton: () {
-                        context.read<NoteManager>().removeNote(
-                            id: idLongPress, preferences: preferences, key: 0);
-                      },
-                      ontapSecondButton: () {})),
+                  child: Consumer<AnimationModel>(
+                    builder: (context, myModel, child) {
+                      return AnimatedFloatButtonBar(
+                          textFirstButton: 'Xóa',
+                          textSecondButton: 'Hủy',
+                          firstButton: Icons.delete_outline,
+                          secondButton: Icons.cancel_outlined,
+                          duration: 200,
+                          size: sizeOfWidth * 0.9,
+                          ontapFirstButton: () {
+                            context.read<NoteManager>().removeNote(
+                                id: myModel.pressId, preferences: preferences, key: 0);
+                          },
+                          ontapSecondButton: () {});
+                    }
+                  )),
               body: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
                   child: Column(
@@ -119,7 +130,7 @@ class _NoteTileState extends State<NoteTile> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             height: myModel.getMiniNotesSize(
-                                type: widget.tile ?? 0, pin: true),
+                                type: widget.type ?? 0, pin: true),
                             width: sizeOfWidth,
                             child:
                                 snapshot.connectionState == ConnectionState.done
@@ -143,7 +154,7 @@ class _NoteTileState extends State<NoteTile> {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             height: myModel.getMiniNotesSize(
-                                type: widget.tile ?? 0, pin: false),
+                                type: widget.type ?? 0, pin: false),
                             child:
                                 snapshot.connectionState == ConnectionState.done
                                     ? buildListNote(false)
@@ -158,28 +169,11 @@ class _NoteTileState extends State<NoteTile> {
         });
   }
 
-  Widget buildIndicator(/*bool isActive, Size size*/) {
-    return Container(
-      margin: const EdgeInsets.only(top: 10, left: 10, right: 10),
-      height: 50,
-      decoration: const BoxDecoration(
-          color: AppColor.white,
-          borderRadius: BorderRadius.all(Radius.circular(15)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black26,
-              offset: Offset(2, 3),
-              blurRadius: 3,
-            )
-          ]),
-    );
-  }
-
   Widget buildListNote(bool pin) {
     int counterPin = context.read<NoteManager>().counterPin;
     int counter = context.read<NoteManager>().counterNote;
     if (counterPin != 0 || counter != 0) {
-      switch (widget.tile) {
+      switch (widget.type) {
         case NoteTile.TYPE_LIST:
           {
             return NoteListTile(
@@ -208,8 +202,7 @@ class _NoteTileState extends State<NoteTile> {
   }
 
   setSizeOfMedia() {
-    sizeOfHeight = MediaQuery.of(context).size.height;
-    sizeOfWidth = MediaQuery.of(context).size.width;
+    mediaSizePresenter.getMediaSize(context);
   }
 
   void innitRemoveList() async {
@@ -228,5 +221,11 @@ class _NoteTileState extends State<NoteTile> {
     } else {
       context.read<NoteManager>().setRemoveList([]);
     }
+  }
+
+  @override
+  onGetMediaSize(Size size) {
+    sizeOfHeight = size.height;
+    sizeOfWidth = size.width;
   }
 }

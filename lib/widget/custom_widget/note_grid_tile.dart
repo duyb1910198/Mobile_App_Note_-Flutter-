@@ -4,35 +4,32 @@ import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/models/route_manager.dart';
-import 'package:note/widget/costum_widget/mini_note_widget.dart';
+import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:provider/provider.dart';
 
-class NoteStaggeredTile extends StatefulWidget {
+class NoteGridTile extends StatefulWidget {
 
   final bool? pin;
 
-  NoteStaggeredTile({super.key, this.pin = false});
+  NoteGridTile({super.key, this.pin = false});
 
   @override
-  _NoteStaggeredTileState createState() => _NoteStaggeredTileState();
+  _NoteGridTileState createState() => _NoteGridTileState();
 }
 
-class _NoteStaggeredTileState extends State<NoteStaggeredTile>{
-
+class _NoteGridTileState extends State<NoteGridTile>{
 
   @override
   Widget build(BuildContext context) {
     return Consumer<NoteManager>(builder: (context, myModel, child) {
-      return MasonryGridView.count(
+      return AlignedGridView.count(
           physics: const NeverScrollableScrollPhysics(),
           padding: const EdgeInsets.all(10),
           scrollDirection: Axis.vertical,
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 2,
-          itemCount: context.read<RouteManager>().select < 2
-              ? (widget.pin! ? myModel.counterPin : myModel.counterNote)
-              : myModel.findByLabel(id: myModel.label).length,
+          itemCount: widget.pin! ? myModel.counterPin : myModel.counterNote,
           itemBuilder: (ctx, i) {
             if (widget.pin!) {
               return buildNote(myModel.pinNotes[i], widget.pin!);
@@ -43,13 +40,8 @@ class _NoteStaggeredTileState extends State<NoteStaggeredTile>{
                 widget.pin!,
               );
             } else {
-              List<Note> list = myModel.findByLabel(id: myModel.label);
-              if (list.length != 0) {
-                return buildNote(
-                    myModel.findByLabel(id: myModel.label)[i], widget.pin!);
-              } else {
-                return Container();
-              }
+              return buildNote(
+                  myModel.findByLabel(id: myModel.label)[i], widget.pin!);
             }
           });
     });

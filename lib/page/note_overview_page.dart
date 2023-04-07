@@ -1,6 +1,4 @@
 
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:note/models/font_size_change_notifier.dart';
@@ -14,7 +12,7 @@ import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
 import 'package:note/widget/app_drawer/app_drawer.dart';
-import 'package:note/widget/costum_widget/note_tile.dart';
+import 'package:note/widget/custom_widget/note_tile.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/top_right_badge.dart';
@@ -90,7 +88,7 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
                 backgroundColor: AppColor.appBarColor,
               ),
               body: NoteTile(
-                tile: tile,
+                type: tile,
                 main: true,
               ),
               drawer: const AppDrawer(),
@@ -169,7 +167,7 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
 
   void newNote() {
     // context.read<NoteManager>().deleteAll(preferences: preferences);
-    int id = context.read<NoteManager>().notes.length == 0
+    int id = context.read<NoteManager>().notes.isEmpty
         ? 1
         : context.read<NoteManager>().firstIdRemove();
     Note note = Note(id: id, content: '', images: [], label: []);
@@ -177,37 +175,13 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
         MaterialPageRoute(builder: (context) => DetailNotePage(notes: note)));
   }
 
-  @override
-  onExitApp(Future<bool> isExit) {
-    setState(() {
-      this.isExit = isExit;
-      print('onExitApp a');
-      if (this.isExit != null) {
-        print('onExitApp b');
-        checkExit();
-    }
-    });
-  }
-
   Future<bool> exitApp() async {
-    print('this.isExit bef ');
-     exitAppPresenter.exitApp(context: context);
-     if (this.isExit != null) {
-      if(await Future.value(this.isExit)) {
-        exit(0);
-      } else {
-        return false;
-      }
-    } else {
-      return true;
-    }
+    exitAppPresenter.exitApp(context: context);
+    return true;
   }
 
-  checkExit() async {
-    print('this.isExit ');
-    print('this.isExit value ${this.isExit}');
-    if(await Future.value(this.isExit)) {
-    exit(0);
-    }
+  @override
+  onExitApp(bool isExit) {
+
   }
 }

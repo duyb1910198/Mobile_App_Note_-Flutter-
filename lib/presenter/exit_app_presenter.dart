@@ -10,13 +10,10 @@ import 'package:note/presenter_view/exit_app_view.dart';
 class ExitAppPresenter extends Presenter<ExitAppView> {
 
   exitApp({required BuildContext context}) async{
-    print('exitApp function presenter');
     final result = await openExitDialog(context: context);
     if (result != null) {
-      print('result true');
       getView().onExitApp(result);
     } else {
-      print('result fa;se');
       getView().onExitApp(false);
     }
   }

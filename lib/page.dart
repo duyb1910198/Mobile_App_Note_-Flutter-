@@ -1,5 +1,5 @@
 
-export 'page/page_landing.dart';
+export 'page/landing_page.dart';
 export 'page/note_overview_page.dart';
 export 'page/labels_page.dart';
 export 'page/setting_page.dart';
