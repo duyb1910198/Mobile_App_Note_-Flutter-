@@ -9,6 +9,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:note/app_path/assets_path.dart';
 import 'package:note/manager/background_colors_manager.dart';
+import 'package:note/models/animation_model.dart';
 import 'package:note/models/check_box.dart';
 import 'package:note/models/font_size_change_notifier.dart';
 import 'package:note/models/label_manager.dart';
@@ -22,6 +23,7 @@ import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
 import 'package:note/widget/app_button/icon_button.dart';
+import 'package:note/widget/custom_widget/animated_float_button_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../manager/background_manager.dart';
@@ -46,6 +48,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
   late SharedPreferences preferences;
   int labelSize = 25;
   int contentSize = 18;
+  int pressImageId = -1;
   double w = 0;
   double imageHeight = 300;
   List<String> imageWidth = [];
@@ -92,6 +95,25 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
         return WillPopScope(
           onWillPop: isBackPreviousPage,
           child: Scaffold(
+            floatingActionButtonLocation:
+            FloatingActionButtonLocation.centerDocked,
+            floatingActionButton: Padding(
+                padding: const EdgeInsets.only(bottom: 50),
+                child: Consumer<AnimationModel>(
+                    builder: (context, myModel, child) {
+                      return AnimatedFloatButtonBar(
+                          textFirstButton: 'Xóa ảnh',
+                          textSecondButton: 'Hủy',
+                          firstButton: Icons.delete_outline,
+                          secondButton: Icons.cancel_outlined,
+                          duration: 200,
+                          size: sizeOfWidth * 0.9,
+                          ontapFirstButton: () {
+                            removeImage(index: pressImageId);
+                          },
+                          ontapSecondButton: () {});
+                    }
+                )),
             body: DecoratedBox(
               decoration: BoxDecoration(
                   color:
@@ -156,7 +178,10 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
         height: sizeOfHeight * 0.8,
         width: sizeOfWidth,
         child: GestureDetector(
-          onTap: () => FocusScope.of(context).unfocus(),
+          onTap: () {
+            context.read<AnimationModel>().changeAnimation(value: false);
+            FocusScope.of(context).unfocus();
+          },
           child: SingleChildScrollView(
             scrollDirection: Axis.vertical,
             child: Column(
@@ -175,6 +200,9 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                       margin: const EdgeInsets.symmetric(vertical: 8),
                       color: AppColor.labelImageColor,
                       child: TextField(
+                        onTap: () {
+                          context.read<AnimationModel>().changeAnimation(value: false);
+                        },
                         style:
                             AppStyle.senH4.copyWith(fontSize: myModel.labelSize),
                         controller: widget.controllerLabelImage,
@@ -222,6 +250,9 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
                             border: InputBorder.none,
                             focusedBorder: InputBorder.none,
                           ),
+                          onTap: () {
+                            context.read<AnimationModel>().changeAnimation(value: false);
+                          },
                         ),
                         SizedBox(
                             height: 26,
@@ -294,6 +325,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     return MaterialButton(
       onPressed: () {
         backPreviousPage();
+        context.read<AnimationModel>().changeAnimation(value: false);
       },
       minWidth: 20,
       child: const Icon(
@@ -614,15 +646,31 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     widthImagePresenter.widthOfImage(file, sizeParent);
   }
 
-  buildImageView(String image, double size, int position) {
+  buildImageView(String image, double size, int index) {
     final file = File(image);
-    return Container(
-      height: 300,
-      width: position >= imagesWidth.length ? 0 : imagesWidth[position],
-      decoration: BoxDecoration(
-          borderRadius: const BorderRadius.all(Radius.circular(15)),
-          image: DecorationImage(
-              scale: 1, image: FileImage(file), fit: BoxFit.cover)),
+    return GestureDetector(
+      onLongPress: () {
+        setState(() {
+          pressImageId = index;
+        });
+        FocusScope.of(context).unfocus();
+        context.read<AnimationModel>().animation = true;
+      },
+      onTap: () {
+        setState(() {
+          pressImageId = index;
+        });
+        FocusScope.of(context).unfocus();
+        context.read<AnimationModel>().animation = true;
+      },
+      child: Container(
+        height: 300,
+        width: index >= imagesWidth.length ? 0 : imagesWidth[index],
+        decoration: BoxDecoration(
+            borderRadius: const BorderRadius.all(Radius.circular(15)),
+            image: DecorationImage(
+                scale: 1, image: FileImage(file), fit: BoxFit.cover)),
+      ),
     );
   }
 
@@ -744,6 +792,7 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     } else {
       deleteNote();
     }
+    context.read<AnimationModel>().changeAnimation(value: false);
     return true;
   }
 
@@ -760,5 +809,16 @@ class _DetailNotePageState extends State<DetailNotePage> implements MediaSizeVie
     setState(() {
       imagesWidth.add(width);
     });
+  }
+
+  removeImage({required int index}) {
+    if (index < imagesWidth.length) {
+      setState(() {
+        imagesWidth.removeAt(index);
+        if (widget.notes.images != null) {
+          widget.notes.images!.removeAt(index);
+        }
+      });
+    }
   }
 }

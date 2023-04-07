@@ -99,7 +99,6 @@ class _DrawerWidget extends State<AppDrawer> {
               AppButton(
                 label: "Thùng rác",
                 onTap: () {
-                  context.read<AnimationModel>().changeAnimation(value: false);
                   Navigator.push(context,
                       MaterialPageRoute(builder: (_) => const NoteRecycleBinPage()));
                 },
@@ -128,6 +127,7 @@ class _DrawerWidget extends State<AppDrawer> {
 
   buildLabelView(
       {required String label, required int select, required int id}) {
+    context.read<AnimationModel>().changeAnimation(value: false);
     return LabelButton(
         label: label,
         onTap: () {
@@ -156,18 +156,9 @@ class _DrawerWidget extends State<AppDrawer> {
       }
       setState(() {
         log('size is ${context.read<LabelManager>().labels.isNotEmpty}');
-        labelsHeight = (40 * context.read<LabelManager>().count()).toDouble();
+        labelsHeight = (40 * context.read<LabelManager>().count()).toDouble() + 16;
       });
     }
-    // else if (sizeNote.height == 0) {
-    //   if (SchedulerBinding.instance.schedulerPhase != SchedulerPhase.idle) {
-    //     // wait for the end of that frame.
-    //     await SchedulerBinding.instance.endOfFrame;
-    //     if (!mounted) return false;
-    //   }
-    //   caculateSize();
-    // }
-
     return true;
   }
 }

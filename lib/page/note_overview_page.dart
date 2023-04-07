@@ -1,6 +1,6 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:note/models/animation_model.dart';
 import 'package:note/models/font_size_change_notifier.dart';
 import 'package:note/models/label_manager.dart';
 import 'package:note/models/note.dart';
@@ -26,7 +26,8 @@ class NoteOverviewPage extends StatefulWidget {
   _NoteOverviewPageState createState() => _NoteOverviewPageState();
 }
 
-class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppView{
+class _NoteOverviewPageState extends State<NoteOverviewPage>
+    implements ExitAppView {
   late SharedPreferences preferences;
   int tile = 0;
   int labelSize = 25;
@@ -37,15 +38,13 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
 
   late ExitAppPresenter exitAppPresenter;
 
-
-
   @override
   void initState() {
     super.initState();
     initPreference();
   }
 
-  _NoteOverviewPageState(){
+  _NoteOverviewPageState() {
     exitAppPresenter = ExitAppPresenter();
     exitAppPresenter.attachView(this);
   }
@@ -63,7 +62,7 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
     List<String> labels = [];
     if (labelStr.isNotEmpty) {
       labels = labelStr.split(',');
-    } else {}
+    }
     context.read<LabelManager>().labels = labels;
   }
 
@@ -77,34 +76,34 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
           return WillPopScope(
             onWillPop: exitApp,
             child: Scaffold(
-              appBar: AppBar(
-                title: Text(
-                  'Ghi chú',
-                  style: AppStyle.senH4.copyWith(color: Colors.white),
+                appBar: AppBar(
+                  title: Text(
+                    'Ghi chú',
+                    style: AppStyle.senH4.copyWith(color: Colors.white),
+                  ),
+                  actions: <Widget>[
+                    buildSortTypeIcon(tile),
+                  ],
+                  backgroundColor: AppColor.appBarColor,
                 ),
-                actions: <Widget>[
-                  buildSortTypeIcon(tile),
-                ],
-                backgroundColor: AppColor.appBarColor,
-              ),
-              body: NoteTile(
-                type: tile,
-                main: true,
-              ),
-              drawer: const AppDrawer(),
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.centerFloat,
-              floatingActionButtonAnimator: FloatingActionButtonAnimator.scaling,
-              floatingActionButton: FloatingActionButton(
-                        onPressed: () {
-                          newNote();
-                          // context.read<NoteManager>().deleteAll(preferences: preferences);
-                        },
-                        tooltip: 'Increment',
-                        backgroundColor: AppColor.appBarColor,
-                        child: const Icon(Icons.add),
-                      )
-            ),
+                body: NoteTile(
+                  type: tile,
+                  main: true,
+                ),
+                drawer: const AppDrawer(),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.centerFloat,
+                floatingActionButtonAnimator:
+                    FloatingActionButtonAnimator.scaling,
+                floatingActionButton: FloatingActionButton(
+                  onPressed: () {
+                    newNote();
+                    // context.read<NoteManager>().deleteAll(preferences: preferences); // delete all data (to demo)
+                  },
+                  tooltip: 'Increment',
+                  backgroundColor: AppColor.appBarColor,
+                  child: const Icon(Icons.add),
+                )),
           );
         });
   }
@@ -115,9 +114,10 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
         icon: Icon(
           getSortIcon(tile),
         ),
-        onPressed: () {
+        onPressed: () async {
+          context.read<AnimationModel>().changeAnimation(value: false);
           context.read<NoteManager>().changeStyle = true;
-          changeTile();
+          changeType();
         },
       ),
     );
@@ -154,7 +154,7 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
     return icon;
   }
 
-  void changeTile() {
+  void changeType() {
     setState(() {
       if (tile != 2) {
         tile++;
@@ -181,7 +181,5 @@ class _NoteOverviewPageState extends State<NoteOverviewPage> implements ExitAppV
   }
 
   @override
-  onExitApp(bool isExit) {
-
-  }
+  onExitApp(bool isExit) {}
 }
