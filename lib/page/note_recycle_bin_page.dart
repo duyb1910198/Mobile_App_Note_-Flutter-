@@ -130,15 +130,6 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
                               .firstWhere((element) => element.id == noteId);
                           context.read<NoteManager>().addNote(
                               note: note, preferences: preferences, key: 0);
-                          if (context.read<NoteManager>().hasLabel) {
-                            int index = note.label!.indexWhere((element) => element == context.read<NoteManager>().label);
-                            if (index != -1) {
-                              context.read<NoteManager>().notesLabel.add(note);
-                              if (note.pin) {
-                                context.read<NoteManager>().pinsLabel.add(note);
-                              }
-                            }
-                          }
                         },
                         ontapSecondButton: () {
                           context.read<NoteManager>().removeNote(

@@ -46,10 +46,24 @@ class NoteManager with ChangeNotifier {
 
   // set pin notes from notes
   setPinNotes() {
+    pinsLabel.clear();
+    notesLabel.clear();
     List<Note> list = [];
     for (int i = 0; i < counterNote; i++) {
       if (notes[i].pin) {
         list.add(notes[i]);
+        if (hasLabel) {
+          int index = notes[i].label!.indexWhere((element) => element == label);
+          if (index != -1) {
+            pinsLabel.add(notes[i]);
+          }
+        }
+      }
+      if (hasLabel) {
+        int index = notes[i].label!.indexWhere((element) => element == label);
+        if (index != -1) {
+          notesLabel.add(notes[i]);
+        }
       }
     }
     pinNotes = list;
