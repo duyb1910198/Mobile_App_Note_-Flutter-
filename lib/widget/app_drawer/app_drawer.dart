@@ -3,7 +3,6 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:note/models/animation_model.dart';
 import 'package:note/models/label_manager.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/models/route_manager.dart';
@@ -11,7 +10,6 @@ import 'package:note/page.dart';
 import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/widget/app_button/app_button.dart';
-import 'package:note/widget/app_button/label_button.dart';
 import 'package:provider/provider.dart';
 
 class AppDrawer extends StatefulWidget {
@@ -42,19 +40,25 @@ class _DrawerWidget extends State<AppDrawer> {
             children: [
               Container(
                 padding: const EdgeInsets.all(10),
-                child: Text('Ghi chú', style: AppStyle.senH3,),
+                child: Text(
+                  'Ghi chú',
+                  style: AppStyle.senH3,
+                ),
               ),
               AppButton(
                 label: "Ghi chú",
                 onTap: () {
                   if (!stay(0, myModal.select)) {
                     myModal.changeSelect(0);
+                    context.read<NoteManager>().setHasLabel(value: false, label: -1);
                     Navigator.of(context)
                         .pushReplacementNamed(NoteOverviewPage.routeName);
                   }
                 },
                 select: (myModal.select == 0) ? true : false,
-                icon: Icons.lightbulb_outline,
+                iconSelect: Icons.lightbulb,
+                iconUnSelect: Icons.lightbulb_outline,
+                height: 40,
               ),
               const Divider(
                 color: AppColor.black,
@@ -70,12 +74,14 @@ class _DrawerWidget extends State<AppDrawer> {
                 onTap: () {
                   if (!stay(1, myModal.select)) {
                     myModal.changeSelect(1);
+                    context.read<NoteManager>().setHasLabel(value: false, label: -1);
                     Navigator.of(context)
                         .pushReplacementNamed(LabelsPage.routeName);
                   }
                 },
                 select: (myModal.select == 1) ? true : false,
-                icon: Icons.add,
+                iconSelect: Icons.add,
+                height: 40,
               ),
               context.read<LabelManager>().labels.isNotEmpty
                   ? Container(
@@ -99,11 +105,14 @@ class _DrawerWidget extends State<AppDrawer> {
               AppButton(
                 label: "Thùng rác",
                 onTap: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: (_) => const NoteRecycleBinPage()));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const NoteRecycleBinPage()));
                 },
                 select: false,
-                icon: Icons.delete_outline,
+                iconSelect: Icons.delete_outline,
+                height: 40,
               ),
               AppButton(
                 label: "Cài đặt",
@@ -112,7 +121,8 @@ class _DrawerWidget extends State<AppDrawer> {
                       MaterialPageRoute(builder: (_) => const SettingPage()));
                 },
                 select: false,
-                icon: Icons.settings_outlined,
+                iconSelect: Icons.settings_outlined,
+                height: 40,
               ),
             ],
           );
@@ -127,21 +137,38 @@ class _DrawerWidget extends State<AppDrawer> {
 
   buildLabelView(
       {required String label, required int select, required int id}) {
-    context.read<AnimationModel>().changeAnimation(value: false);
-    return LabelButton(
-        label: label,
-        onTap: () {
-          setState(() {
-            Future.delayed(const Duration(milliseconds: 260), () {
-              Navigator.of(context).pop();
-            });
-            if (context.read<RouteManager>().select != 1) {
-              context.read<NoteManager>().setHasLabel(value: true, label: id);
-              context.read<RouteManager>().changeSelect(id + 2);
-            }
-          });
-        },
-        select: select == id + 2);
+    // return LabelButton(
+    //     label: label,
+    //     onTap: () {
+    //       setState(() {
+    //         Future.delayed(const Duration(milliseconds: 260), () {
+    //           Navigator.of(context).pop();
+    //         });
+    //         if (context.read<RouteManager>().select != 1) {
+    //           context.read<NoteManager>().setHasLabel(value: true, label: id);
+    //           context.read<RouteManager>().changeSelect(id + 2);
+    //         }
+    //       });
+    //     },
+    //     select: select == id + 2);
+
+    return AppButton(
+      label: label,
+      onTap: () {
+        Navigator.of(context).pop();
+        setState(() {
+          if (context.read<RouteManager>().select != 1) {
+            context.read<NoteManager>().setHasLabel(value: true, label: id);
+            context.read<RouteManager>().changeSelect(id + 2);
+          }
+        });
+      },
+      select: select == id + 2,
+      iconSelect: Icons.label,
+      iconUnSelect: Icons.label_outline,
+      height: 40,
+      textStyle: AppStyle.senH5.copyWith(color: AppColor.black),
+    );
   }
 
   Future<bool> rebuild() async {
@@ -156,7 +183,8 @@ class _DrawerWidget extends State<AppDrawer> {
       }
       setState(() {
         log('size is ${context.read<LabelManager>().labels.isNotEmpty}');
-        labelsHeight = (40 * context.read<LabelManager>().count()).toDouble() + 16;
+        labelsHeight =
+            (40 * context.read<LabelManager>().count()).toDouble() + 16;
       });
     }
     return true;

@@ -3,7 +3,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
-import 'package:note/models/route_manager.dart';
 import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -30,16 +29,24 @@ class _NoteListTileState extends State<NoteListTile>{
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 1,
-          itemCount: widget.pin! ? myModel.counterPin : myModel.counterNote,
+          itemCount: myModel.counterCurrent(widget.pin!),
           itemBuilder: (ctx, i) {
-            if (widget.pin!) {
-              return buildNote(myModel.pinNotes[i], widget.pin!);
-            }
-            if (context.read<RouteManager>().select < 2) {
-              return buildNote(myModel.notes[i], widget.pin!);
-            } else {
+            if (!myModel.hasLabel) {
+              if (widget.pin!) {
+                return buildNote(myModel.pinNotes[i], widget.pin!);
+              }
               return buildNote(
-                  myModel.findByLabel(id: myModel.label)[i], widget.pin!);
+                myModel.notes[i],
+                widget.pin!,
+              );
+            } else {
+              if (widget.pin!) {
+                return buildNote(myModel.pinsLabel[i], widget.pin!);
+              }
+              return buildNote(
+                myModel.notesLabel[i],
+                widget.pin!,
+              );
             }
           });
     });

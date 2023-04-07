@@ -147,7 +147,7 @@ class _SettingPageState extends State<SettingPage> implements MediaSizeView {
   }
 
   setSizeOfMedia() {
-    Size size = mediaSizePresenter.getMediaSize(context);
+    mediaSizePresenter.getMediaSize(context);
   }
 
   @override

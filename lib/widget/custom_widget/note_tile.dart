@@ -121,7 +121,8 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             height: myModel.getMiniNotesSize(
-                                type: widget.type ?? 0, pin: true),
+                                type: widget.type ?? 0, pin: true
+                                , label: myModel.label),
                             width: sizeOfWidth,
                             child:
                                 snapshot.connectionState == ConnectionState.done
@@ -145,7 +146,7 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
                           child: AnimatedContainer(
                             duration: const Duration(milliseconds: 200),
                             height: myModel.getMiniNotesSize(
-                                type: widget.type ?? 0, pin: false),
+                                type: widget.type ?? 0, pin: false, label: myModel.label),
                             child:
                                 snapshot.connectionState == ConnectionState.done
                                     ? buildListNote(false)

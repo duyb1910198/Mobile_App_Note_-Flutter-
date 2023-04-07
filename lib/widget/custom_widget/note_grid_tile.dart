@@ -3,12 +3,10 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
-import 'package:note/models/route_manager.dart';
 import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:provider/provider.dart';
 
 class NoteGridTile extends StatefulWidget {
-
   final bool? pin;
 
   NoteGridTile({super.key, this.pin = false});
@@ -17,8 +15,7 @@ class NoteGridTile extends StatefulWidget {
   _NoteGridTileState createState() => _NoteGridTileState();
 }
 
-class _NoteGridTileState extends State<NoteGridTile>{
-
+class _NoteGridTileState extends State<NoteGridTile> {
   @override
   Widget build(BuildContext context) {
     return Consumer<NoteManager>(builder: (context, myModel, child) {
@@ -29,19 +26,24 @@ class _NoteGridTileState extends State<NoteGridTile>{
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
           crossAxisCount: 2,
-          itemCount: widget.pin! ? myModel.counterPin : myModel.counterNote,
+          itemCount: myModel.counterCurrent(widget.pin!),
           itemBuilder: (ctx, i) {
-            if (widget.pin!) {
-              return buildNote(myModel.pinNotes[i], widget.pin!);
-            }
-            if (context.read<RouteManager>().select < 2) {
+            if (!myModel.hasLabel) {
+              if (widget.pin!) {
+                return buildNote(myModel.pinNotes[i], widget.pin!);
+              }
               return buildNote(
                 myModel.notes[i],
                 widget.pin!,
               );
             } else {
+              if (widget.pin!) {
+                return buildNote(myModel.pinsLabel[i], widget.pin!);
+              }
               return buildNote(
-                  myModel.findByLabel(id: myModel.label)[i], widget.pin!);
+                myModel.notesLabel[i],
+                widget.pin!,
+              );
             }
           });
     });
