@@ -1,8 +1,9 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:note/models/animation_model.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
+import 'package:note/page/note_detail_page.dart';
 import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -54,6 +55,11 @@ class _NoteGridTileState extends State<NoteGridTile> {
         onLongPress: () {
           context.read<AnimationModel>().changeAnimation(value: true);
           context.read<AnimationModel>().setNotePress(id: note.id);
+        },
+        onTap: () {
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => NoteDetailPage(
+                  note: note)));
         },
         child: MiniNoteWidget(
           note: note,

@@ -123,7 +123,7 @@ class _LabelsPageState extends State<LabelsPage> {
 
   buildLabelsView() {
     return Consumer<LabelManager>(builder: (context, myModal, child) {
-      if (!context.read<LabelManager>().isEmpty()) {
+      if (context.read<LabelManager>().labels.isNotEmpty) {
         return MasonryGridView.count(
           scrollDirection: Axis.vertical,
           crossAxisSpacing: 2,

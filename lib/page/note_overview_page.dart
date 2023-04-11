@@ -1,3 +1,4 @@
+import 'package:awesome_dialog/awesome_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:note/models/animation_model.dart';
@@ -29,7 +30,6 @@ class NoteOverviewPage extends StatefulWidget {
 class _NoteOverviewPageState extends State<NoteOverviewPage>
     implements ExitAppView {
   late SharedPreferences preferences;
-  int tile = 0;
   int labelSize = 25;
 
   int contentSize = 18;
@@ -51,9 +51,10 @@ class _NoteOverviewPageState extends State<NoteOverviewPage>
 
   initPreference() async {
     preferences = await SharedPreferences.getInstance();
+    context.read<NoteManager>().setPreferencesInstance(preferences: preferences);
     labelSize = preferences.getInt(ShareKey.sizeLabel) ?? 25;
     contentSize = preferences.getInt(ShareKey.sizeContent) ?? 18;
-    tile = preferences.getInt(ShareKey.tile) ?? 0;
+    context.read<NoteManager>().setType(preferences.getInt(ShareKey.tile) ?? 0);
     context.read<FontSizeChangnotifier>().changeFontSize(
         labelSize: labelSize.toDouble(), contentSize: contentSize.toDouble());
 
@@ -82,12 +83,11 @@ class _NoteOverviewPageState extends State<NoteOverviewPage>
                     style: AppStyle.senH4.copyWith(color: Colors.white),
                   ),
                   actions: <Widget>[
-                    buildSortTypeIcon(tile),
+                    buildSortTypeIcon(),
                   ],
                   backgroundColor: AppColor.appBarColor,
                 ),
-                body: NoteTile(
-                  type: tile,
+                body: const NoteTile(
                   main: true,
                 ),
                 drawer: const AppDrawer(),
@@ -108,19 +108,36 @@ class _NoteOverviewPageState extends State<NoteOverviewPage>
         });
   }
 
-  Widget buildSortTypeIcon(int tile) {
-    return TopRightBadge(
-      child: IconButton(
-        icon: Icon(
-          getSortIcon(tile),
-        ),
-        onPressed: () async {
-          context.read<AnimationModel>().changeAnimation(value: false);
-          context.read<NoteManager>().changeStyle = true;
-          changeType();
-        },
-      ),
-    );
+  Widget buildSortTypeIcon() {
+    return Consumer<NoteManager>(builder: (context, myModel, child) {
+      return Row(
+        children: [
+          TopRightBadge(
+            child: IconButton(
+              icon: const Icon(
+                Icons.delete_forever_outlined,
+              ),
+              onPressed: () async {
+                deleteAllNote();
+              },
+            ),
+          ),
+
+          TopRightBadge(
+            child: IconButton(
+              icon: Icon(
+                getSortIcon(myModel.type),
+              ),
+              onPressed: () async {
+                context.read<AnimationModel>().changeAnimation(value: false);
+                context.read<NoteManager>().setChangeStyle(style: true);
+                changeType();
+              },
+            ),
+          ),
+        ],
+      );
+    });
   }
 
   IconData getSortIcon(int tile) {
@@ -155,24 +172,22 @@ class _NoteOverviewPageState extends State<NoteOverviewPage>
   }
 
   void changeType() {
-    setState(() {
-      if (tile != 2) {
-        tile++;
-      } else {
-        tile = 0;
-      }
-      preferences.setInt(ShareKey.tile, tile);
-    });
+    int type = context.read<NoteManager>().type;
+    if (type != 2) {
+      type++;
+    } else {
+      type = 0;
+    }
+    context.read<NoteManager>().setType(type);
+    preferences.setInt(ShareKey.tile, context.read<NoteManager>().type);
   }
 
   void newNote() {
     // context.read<NoteManager>().deleteAll(preferences: preferences);
-    int id = context.read<NoteManager>().notes.isEmpty
-        ? 1
-        : context.read<NoteManager>().firstIdRemove();
+    int id = context.read<NoteManager>().minId;
     Note note = Note(id: id, content: '', images: [], label: []);
     Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => DetailNotePage(note: note)));
+        MaterialPageRoute(builder: (context) => NoteDetailPage(note: note)));
   }
 
   Future<bool> exitApp() async {
@@ -182,4 +197,17 @@ class _NoteOverviewPageState extends State<NoteOverviewPage>
 
   @override
   onExitApp(bool isExit) {}
+
+  deleteAllNote() {
+      return AwesomeDialog(
+        context: context,
+        dialogType: DialogType.error,
+        animType: AnimType.topSlide,
+        showCloseIcon: true,
+        title: 'Xoá tất cả',
+        desc: 'Bạn muốn xóa toàn bộ dữ liệu ghi chú',
+        btnCancelOnPress: () {},
+        btnOkOnPress: () => context.read<NoteManager>().deleteAll(),
+      ).show();
+  }
 }

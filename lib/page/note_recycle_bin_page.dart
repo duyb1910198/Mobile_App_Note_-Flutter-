@@ -25,7 +25,8 @@ class NoteRecycleBinPage extends StatefulWidget {
   NoteRecycleBinPageState createState() => NoteRecycleBinPageState();
 }
 
-class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements MediaSizeView{
+class NoteRecycleBinPageState extends State<NoteRecycleBinPage>
+    implements MediaSizeView {
   List<Note> notes = [];
   double sizeOfHeight = 0;
   double sizeOfWidth = 0;
@@ -36,10 +37,7 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
 
   late ValueNotifier<bool> isLongPressV;
 
-  int noteId = -1;
-
   late MediaSizePresenter mediaSizePresenter;
-
 
   NoteRecycleBinPageState() {
     mediaSizePresenter = MediaSizePresenter();
@@ -68,7 +66,6 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
       innitRemoveList();
       context.read<NoteManager>().setDeleteNotes(notes);
     } // init note list
-
   }
 
   @override
@@ -79,66 +76,67 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
     return FutureBuilder(
         future: initData(),
         builder: (context, snapshot) {
-          if(snapshot.connectionState == ConnectionState.done) {
-            return Scaffold(
-                appBar: AppBar(
-                  title: Text('Thùng rác',
-                      style: AppStyle.senH4.copyWith(color: AppColor.white)),
-                  backgroundColor: AppColor.appBarColor,
-                  leading: InkWell(
-                    onTap: () {
-                      context.read<AnimationModel>().changeAnimation(value: false);
-                      Navigator.pop(context);
-                    },
-                    child: const Icon(Icons.arrow_back_rounded),
+          return Scaffold(
+              appBar: AppBar(
+                title: Text('Thùng rác',
+                    style: AppStyle.senH4.copyWith(color: AppColor.white)),
+                backgroundColor: AppColor.appBarColor,
+                leading: InkWell(
+                  onTap: () {
+                    context
+                        .read<AnimationModel>()
+                        .changeAnimation(value: false);
+                    Navigator.pop(context);
+                  },
+                  child: const Icon(Icons.arrow_back_rounded),
+                ),
+              ),
+              body: SingleChildScrollView(
+                child: GestureDetector(
+                  onTap: () {
+                    context
+                        .read<AnimationModel>()
+                        .changeAnimation(value: false);
+                  },
+                  onLongPress: () {
+                    context
+                        .read<AnimationModel>()
+                        .changeAnimation(value: false);
+                  },
+                  child: SizedBox(
+                    height: double.maxFinite,
+                    width: double.maxFinite,
+                    child: snapshot.connectionState == ConnectionState.done ? buildDeleteNotes() : Container(),
                   ),
                 ),
-                body: SingleChildScrollView(
-                  child: GestureDetector(
-                    onTap: () {
-                      context
-                          .read<AnimationModel>()
-                          .changeAnimation(value: false);
-                    },
-                    onLongPress: () {
-                      context
-                          .read<AnimationModel>()
-                          .changeAnimation(value: false);
-                    },
-                    child: Container(
-                      height: double.maxFinite,
-                      width: double.maxFinite,
-                      child: buildDeleteNotes(),
-                    ),
-                  ),
-                ),
-                floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerDocked,
-                floatingActionButton: Padding(
-                    padding: const EdgeInsets.only(bottom: 50),
-                    child: AnimatedFloatButtonBar(
-                        textFirstButton: 'Khôi phục',
-                        textSecondButton: 'Xóa vanish viễn',
-                        firstButton: Icons.undo,
-                        secondButton: Icons.delete_outline,
-                        duration: 200,
-                        size: sizeOfWidth * 0.9,
-                        ontapFirstButton: () {
-                          Note note = context
-                              .read<NoteManager>()
-                              .deleteNotes
-                              .firstWhere((element) => element.id == noteId);
-                          context.read<NoteManager>().addNote(
-                              note: note, preferences: preferences, key: 0);
-                        },
-                        ontapSecondButton: () {
-                          context.read<NoteManager>().removeNote(
-                              id: noteId, preferences: preferences, key: 1);
-                        })
-                ));
-          }
-          return Container();
-
+              ),
+              floatingActionButtonLocation:
+                  FloatingActionButtonLocation.centerDocked,
+              floatingActionButton: Padding(
+                  padding: const EdgeInsets.only(bottom: 50),
+                  child: Consumer<AnimationModel>(
+                    builder: (context, myModel, child) {
+                      return AnimatedFloatButtonBar(
+                          textFirstButton: 'Khôi phục',
+                          textSecondButton: 'Xóa vĩnh viễn',
+                          firstButton: Icons.undo,
+                          secondButton: Icons.delete_outline,
+                          duration: 200,
+                          size: sizeOfWidth * 0.9,
+                          ontapFirstButton: () {
+                            Note note = context
+                                .read<NoteManager>()
+                                .deleteNotes
+                                .firstWhere((element) => element.id == myModel.pressId);
+                            context.read<NoteManager>().setAddNote(
+                                note: note);
+                          },
+                          ontapSecondButton: () {
+                            context.read<NoteManager>().setRemoveNote(
+                                id: myModel.pressId, key: 1);
+                          });
+                    }
+                  )));
         });
   }
 
@@ -162,11 +160,11 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
             return GestureDetector(
                 onTap: () {
                   context.read<AnimationModel>().changeAnimation(value: true);
-                  noteId = myModel.deleteNotes[i].id;
+                  context.read<AnimationModel>().setNotePress(id: myModel.deleteNotes[i].id);
                 },
                 onLongPress: () {
                   context.read<AnimationModel>().changeAnimation(value: true);
-                  noteId = myModel.deleteNotes[i].id;
+                  context.read<AnimationModel>().setNotePress(id: myModel.deleteNotes[i].id);
                 },
                 child: MiniNoteWidget(
                   note: myModel.deleteNotes[i],
@@ -175,7 +173,6 @@ class NoteRecycleBinPageState extends State<NoteRecycleBinPage> implements Media
           });
     });
   }
-
 
   @override
   onGetMediaSize(Size size) {

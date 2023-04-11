@@ -6,6 +6,8 @@ class ShareKey {
   static const notesId = 'noteId';
   static const deleteNotesId = 'delete noteId';
   static const tile = 'tile sort';
+  static const maxId = 'max id';
+  static const minId = 'min id';
   static const removeList = 'remove list';
   static const labels = 'labels';
   static const backgroundColor = 0xffF2F7C1;

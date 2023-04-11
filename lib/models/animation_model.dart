@@ -15,7 +15,6 @@ class AnimationModel with ChangeNotifier {
 
   changeAnimation({required bool value}) {
     animation = value;
-    notifyListeners();
     if (value) {
       delay = true;
       notifyListeners();
@@ -30,6 +29,7 @@ class AnimationModel with ChangeNotifier {
         delay = false;
         notifyListeners();
       });
+      notifyListeners();
     }
   }
 }

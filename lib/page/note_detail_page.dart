@@ -28,19 +28,19 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../manager/background_manager.dart';
 
-class DetailNotePage extends StatefulWidget {
+class NoteDetailPage extends StatefulWidget {
   Note note;
 
-  DetailNotePage({required this.note, super.key});
+  NoteDetailPage({required this.note, super.key});
 
   TextEditingController controllerLabelImage = TextEditingController();
   TextEditingController controllerContent = TextEditingController();
 
   @override
-  _DetailNotePageState createState() => _DetailNotePageState();
+  _NoteDetailPageState createState() => _NoteDetailPageState();
 }
 
-class _DetailNotePageState extends State<DetailNotePage>
+class _NoteDetailPageState extends State<NoteDetailPage>
     implements MediaSizeView, WidthImageView {
   late int imagesSize;
   double sizeOfHeight = 0;
@@ -55,7 +55,7 @@ class _DetailNotePageState extends State<DetailNotePage>
   late MediaSizePresenter mediaSizePresenter;
   late WidthImagePresenter widthImagePresenter;
 
-  _DetailNotePageState() {
+  _NoteDetailPageState() {
     mediaSizePresenter = MediaSizePresenter();
     mediaSizePresenter.attachView(this);
     widthImagePresenter = WidthImagePresenter();
@@ -634,7 +634,7 @@ class _DetailNotePageState extends State<DetailNotePage>
     });
     context
         .read<NoteManager>()
-        .addNote(note: widget.note, preferences: preferences, key: 0);
+        .setAddNote(note: widget.note);
   }
 
   // set list width of image = width(original image) * height(size of parent widget) / height (original image)
@@ -738,17 +738,18 @@ class _DetailNotePageState extends State<DetailNotePage>
     contentSize = preferences.getInt(ShareKey.sizeContent) ?? 18;
   }
 
-  void setNotePreference() {
+  void setAddNote() {
+    print('setAddNote id is ${widget.note.id}');
     context
         .read<NoteManager>()
-        .addNote(note: widget.note, preferences: preferences, key: 0);
+        .setAddNote(note: widget.note);
   }
 
   deleteNote() {
     if (context.read<NoteManager>().existNote(id: widget.note.id)) {
       context
           .read<NoteManager>()
-          .removeNote(id: widget.note.id, preferences: preferences, key: 0);
+          .setRemoveNote(id: widget.note.id, key: 0);
     }
     Navigator.pop(context);
   }
@@ -768,17 +769,21 @@ class _DetailNotePageState extends State<DetailNotePage>
 
   backPreviousPage() {
     if (widget.note.isVaild(note: widget.note)) {
-      setNotePreference();
+      setAddNote();
       context.read<NoteManager>().setPinNotes();
       Navigator.pop(context);
     } else {
-      deleteNote();
+      if ( context.read<NoteManager>().existNote(id: widget.note.id)) {
+        deleteNote();
+      } else {
+        Navigator.pop(context);
+      }
     }
   }
 
   Future<bool> isBackPreviousPage() async {
     if (widget.note.isVaild(note: widget.note)) {
-      setNotePreference();
+      setAddNote();
       context.read<NoteManager>().setPinNotes();
       Navigator.pop(context);
     } else {
@@ -806,6 +811,7 @@ class _DetailNotePageState extends State<DetailNotePage>
   removeImage({required int index}) {
     if (index < imagesWidth.length) {
       setState(() {
+        print('remove images width[$index]');
         imagesWidth.removeAt(index);
         if (widget.note.images != null) {
           widget.note.images!.removeAt(index);

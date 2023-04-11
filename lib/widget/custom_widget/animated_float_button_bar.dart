@@ -63,6 +63,7 @@ class AnimatedFloatButtonBarState extends State<AnimatedFloatButtonBar> {
                   Future.delayed(Duration(milliseconds: widget.duration + 1),
                       () {
                     widget.ontapFirstButton();
+                    context.read<AnimationModel>().setNotePress(id: -1);
                   });
                 },
                 child: Column(
@@ -83,8 +84,10 @@ class AnimatedFloatButtonBarState extends State<AnimatedFloatButtonBar> {
               child: MaterialButton(
                 onPressed: () async {
                   context.read<AnimationModel>().changeAnimation(value: false);
-                  Future.delayed(Duration(milliseconds: widget.duration + 1), () {
+                  Future.delayed(Duration(milliseconds: widget.duration + 1),
+                      () {
                     widget.ontapSecondButton();
+                    context.read<AnimationModel>().setNotePress(id: -1);
                   });
                 },
                 child: Column(

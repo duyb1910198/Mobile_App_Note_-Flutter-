@@ -9,7 +9,6 @@ import 'package:note/models/font_size_change_notifier.dart';
 import 'package:note/models/label_manager.dart';
 import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
-import 'package:note/page/note_detail_page.dart';
 import 'package:note/presenter/width_image_presenter.dart';
 import 'package:note/presenter_view/width_image_view.dart';
 import 'package:note/values/colors.dart';
@@ -104,98 +103,88 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                       snapshot.connectionState == ConnectionState.done
                   ? Container()
                   : ClipRRect(
-                      child: GestureDetector(
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Consumer<NoteManager>(
-                                    builder: (context, myModel, child) {
-                                  return SizedBox(
-                                      height: heightImages,
-                                      child: buildImagesView(
-                                          images: (myModel
-                                                  .findById(widget.note.id)!
-                                                  .images ??
-                                              [])));
-                                }),
-                                myModelNote
-                                            .findById(widget.note.id)!
-                                            .labelImages ==
-                                        ''
-                                    ? Container()
-                                    : SizedBox(
-                                        width: double.infinity,
-                                        child: Consumer<FontSizeChangnotifier>(
-                                          builder: (context, myModel, child) {
-                                            return Text(
-                                              '${myModelNote.findById(widget.note.id)!.labelImages}',
-                                              style: AppStyle.senH4.copyWith(
-                                                  fontSize: myModel.labelSize),
-                                            );
-                                          },
-                                        ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Consumer<NoteManager>(
+                                  builder: (context, myModel, child) {
+                                return SizedBox(
+                                    height: heightImages,
+                                    child: buildImagesView(
+                                        images: (myModel
+                                                .findById(widget.note.id)!
+                                                .images ??
+                                            [])));
+                              }),
+                              myModelNote
+                                          .findById(widget.note.id)!
+                                          .labelImages ==
+                                      ''
+                                  ? Container()
+                                  : SizedBox(
+                                      width: double.infinity,
+                                      child: Consumer<FontSizeChangnotifier>(
+                                        builder: (context, myModel, child) {
+                                          return Text(
+                                            '${myModelNote.findById(widget.note.id)!.labelImages}',
+                                            style: AppStyle.senH4.copyWith(
+                                                fontSize: myModel.labelSize),
+                                          );
+                                        },
                                       ),
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: Consumer<FontSizeChangnotifier>(
-                                    builder: (context, myModel, child) {
-                                      return Text(
-                                          myModelNote
-                                                  .findById(widget.note.id)!
-                                                  .content ??
-                                              '',
-                                          style: AppStyle.senH4.copyWith(
-                                              fontSize: myModel.contentSize));
-                                    },
-                                  ),
+                                    ),
+                              SizedBox(
+                                width: double.infinity,
+                                child: Consumer<FontSizeChangnotifier>(
+                                  builder: (context, myModel, child) {
+                                    return Text(
+                                        myModelNote
+                                                .findById(widget.note.id)!
+                                                .content ??
+                                            '',
+                                        style: AppStyle.senH4.copyWith(
+                                            fontSize: myModel.contentSize));
+                                  },
                                 ),
-                                checkExist()
-                                    ? Container()
-                                    : SizedBox(
-                                        height: 26,
-                                        child: Consumer<NoteManager>(
-                                          builder: (context, myModel, child) {
-                                            int index = myModel.notes
-                                                .indexWhere((element) =>
-                                                    element.id ==
-                                                    widget.note.id);
-                                            return MasonryGridView.count(
-                                                scrollDirection:
-                                                    Axis.horizontal,
-                                                crossAxisSpacing: 2,
-                                                mainAxisSpacing: 10,
-                                                crossAxisCount: 1,
-                                                itemCount: index != -1
-                                                    ? myModel.notes
-                                                        .firstWhere((element) =>
-                                                            element.id ==
-                                                            widget.note.id)
-                                                        .label
-                                                        ?.length
-                                                    : 0,
-                                                shrinkWrap: true,
-                                                itemBuilder: (ctx, i) =>
-                                                    buildLabelView(
-                                                        l: context
-                                                                .read<
-                                                                    LabelManager>()
-                                                                .labels[
-                                                            widget.note
-                                                                .label![i]]));
-                                          },
-                                        )),
-                              ]),
-                        ),
-                        onTap: () {
-                          if (widget.keyCheck == 0) {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => DetailNotePage(
-                                    note: myModelNote
-                                        .findById(widget.note.id)!)));
-                          }
-                        },
+                              ),
+                              checkExist()
+                                  ? Container()
+                                  : SizedBox(
+                                      height: 26,
+                                      child: Consumer<NoteManager>(
+                                        builder: (context, myModel, child) {
+                                          int index = myModel.notes
+                                              .indexWhere((element) =>
+                                                  element.id ==
+                                                  widget.note.id);
+                                          return MasonryGridView.count(
+                                              scrollDirection:
+                                                  Axis.horizontal,
+                                              crossAxisSpacing: 2,
+                                              mainAxisSpacing: 10,
+                                              crossAxisCount: 1,
+                                              itemCount: index != -1
+                                                  ? myModel.notes
+                                                      .firstWhere((element) =>
+                                                          element.id ==
+                                                          widget.note.id)
+                                                      .label
+                                                      ?.length
+                                                  : 0,
+                                              shrinkWrap: true,
+                                              itemBuilder: (ctx, i) =>
+                                                  buildLabelView(
+                                                      l: context
+                                                              .read<
+                                                                  LabelManager>()
+                                                              .labels[
+                                                          widget.note
+                                                              .label![i]]));
+                                        },
+                                      )),
+                            ]),
                       ),
                     ),
             );
@@ -296,27 +285,24 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
   void caculateSize() => WidgetsBinding.instance.addPostFrameCallback((_) {
         final RenderBox box =
             keyMiniNote.currentContext!.findRenderObject() as RenderBox;
-        setState(() {
-          print('update yes');
-          sizePinNote = box.size;
-          bool add = false;
-          if (heightTest == 0) {
-            add = true;
-          }
-          heightTest = sizePinNote.height + 14;
-          add
-              ? context.read<NoteManager>().addMiniNotesSize(
-                  height: heightTest,
-                  pin: widget.pin ?? false,
-                  id: widget.note.id)
-              : context.read<NoteManager>().updateMiniNotesSize(
-                  height: heightTest,
-                  pin: widget.pin ?? false,
-                  id: widget.note.id);
+        sizePinNote = box.size;
+        bool add = false;
+        if (heightTest == 0) {
+          add = true;
+        }
+        heightTest = sizePinNote.height + 14;
+        add
+            ? context.read<NoteManager>().addSizeOfMainNotes(
+                height: heightTest,
+                pin: widget.pin ?? false,
+                id: widget.note.id)
+            : context.read<NoteManager>().updateSizeOfMainNotes(
+                height: heightTest,
+                pin: widget.pin ?? false,
+                id: widget.note.id);
 
-          context.read<NoteManager>().changeStyle = false;
-          context.read<NoteManager>().updateHeightId = -1;
-        });
+        context.read<NoteManager>().changeStyle = false;
+        context.read<NoteManager>().updateHeightId = -1;
       });
 
   initData() async {

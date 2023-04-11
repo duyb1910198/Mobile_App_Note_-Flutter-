@@ -30,12 +30,6 @@ class LabelManager with ChangeNotifier {
     return labels.length;
   }
 
-  isEmpty(){
-    if (labels == null) return true;
-    if (count() == 1 && labels[0] == '') return true;
-    return false;
-  }
-
   void add({required String text, required SharedPreferences preferences}) {
     int index = _labels.indexWhere((element) => element == text);
     if (index == -1) {

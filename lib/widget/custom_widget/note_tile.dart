@@ -1,3 +1,5 @@
+// ignore_for_file: constant_identifier_names
+
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -18,11 +20,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 class NoteTile extends StatefulWidget {
   static const int TYPE_LIST = 0;
   static const int TYPE_GRID = 1;
+
+  // ignore: constant_identifier_names
   static const int TYPE_STAGGERED = 2;
-  final int? type;
   final bool main;
 
-  const NoteTile({super.key, this.type, required this.main});
+  const NoteTile({super.key, required this.main});
 
   @override
   _NoteTileState createState() => _NoteTileState();
@@ -50,23 +53,35 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
 
   initPreference({required BuildContext context}) async {
     setSizeOfMedia();
+
     notes.clear();
     preferences = await SharedPreferences.getInstance();
 
     String notesId = preferences.getString(ShareKey.notesId) ?? '';
-    List<String> checkList = notesId.split(" ");
-    if (checkList[0] != '') {
+    List<String> checkList = notesId.isEmpty ? [] : notesId.split(" ");
+
+    if (checkList.isNotEmpty) {
       for (int i = 0; i < checkList.length; i++) {
-        String noteString =
+        String noteStr =
             preferences.getString(ShareKey.note + checkList[i]) ?? '';
-        Note note = Note.fromJson(json.decode(noteString));
+        Note note = Note.fromJson(json.decode(noteStr));
 
         notes.add(note);
+        if (i == checkList.length -1) {
+          List<int> removeList = getRemoveList();
+          int type = preferences.getInt(ShareKey.tile) ?? 0;
+          int maxId = preferences.getInt(ShareKey.maxId) ?? 1;
+          int minId = preferences.getInt(ShareKey.minId) ?? 1;
+          context.read<NoteManager>().initNotesManagerData(
+              maxId: maxId,
+              minId: minId,
+              type: type,
+              notes: notes,
+              removeList: removeList);
+
+        }
       }
-      innitRemoveList();
-      context.read<NoteManager>().setNotes(notes);
-      context.read<NoteManager>().setPinNotes();
-    } // init note list
+    }
   }
 
   @override
@@ -74,17 +89,18 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
     return FutureBuilder(
         future: initPreference(context: context),
         builder: (context, snapshot) {
-          return GestureDetector(
-            onTap: () {
-              context.read<AnimationModel>().changeAnimation(value: false);
-            },
-            child: Scaffold(
-              floatingActionButtonLocation:
-                  FloatingActionButtonLocation.centerDocked,
-              floatingActionButton: Padding(
-                  padding: const EdgeInsets.only(bottom: 50),
-                  child: Consumer<AnimationModel>(
-                    builder: (context, myModel, child) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return GestureDetector(
+              onTap: () {
+                context.read<AnimationModel>().changeAnimation(value: false);
+              },
+              child: Scaffold(
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.centerDocked,
+                floatingActionButton: Padding(
+                    padding: const EdgeInsets.only(bottom: 50),
+                    child: Consumer<AnimationModel>(
+                        builder: (context, myModel, child) {
                       return AnimatedFloatButtonBar(
                           textFirstButton: 'Xóa',
                           textSecondButton: 'Hủy',
@@ -93,79 +109,81 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
                           duration: 200,
                           size: sizeOfWidth * 0.9,
                           ontapFirstButton: () {
-                            context.read<NoteManager>().removeNote(
-                                id: myModel.pressId, preferences: preferences, key: 0);
+                            context
+                                .read<NoteManager>()
+                                .setRemoveNote(id: myModel.pressId, key: 0);
                           },
                           ontapSecondButton: () {
                             context.read<AnimationModel>().setNotePress(id: -1);
                           });
-                    }
-                  )),
-              body: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, left: 8),
-                        child: Text('Ghim', style: AppStyle.senH5),
-                      ),
-                      Consumer<NoteManager>(builder: (ctx, myModel, child) {
-                        return GestureDetector(
-                          onTap: () {
-                            context
-                                .read<AnimationModel>()
-                                .changeAnimation(value: false);
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            height: myModel.getMiniNotesSize(
-                                type: widget.type ?? 0, pin: true
-                                , label: myModel.label),
-                            width: sizeOfWidth,
-                            child:
-                                snapshot.connectionState == ConnectionState.done
-                                    ? buildListNote(true)
-                                    : Container(),
-                          ),
-                        );
-                      }),
-                      const Divider(),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0, left: 8),
-                        child: Text('Ghi chú', style: AppStyle.senH5),
-                      ),
-                      Consumer<NoteManager>(builder: (context, myModel, child) {
-                        return GestureDetector(
-                          onTap: () {
-                            context
-                                .read<AnimationModel>()
-                                .changeAnimation(value: false);
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            height: myModel.getMiniNotesSize(
-                                type: widget.type ?? 0, pin: false, label: myModel.label),
-                            child:
-                                snapshot.connectionState == ConnectionState.done
-                                    ? buildListNote(false)
-                                    : Container(),
-                          ),
-                        );
-                      }),
-                    ],
-                  )),
-            ),
-          );
+                    })),
+                body: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, left: 8),
+                          child: Text('Ghim', style: AppStyle.senH5),
+                        ),
+                        Consumer<NoteManager>(builder: (ctx, myModel, child) {
+                          return GestureDetector(
+                            onTap: () {
+                              context
+                                  .read<AnimationModel>()
+                                  .changeAnimation(value: false);
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(seconds: 1),
+                              height: myModel.heightOfPinList,
+                              width: sizeOfWidth,
+                              child: snapshot.connectionState ==
+                                      ConnectionState.done
+                                  ? buildListNote(true, myModel.type)
+                                  : Container(),
+                            ),
+                          );
+                        }),
+                        const Divider(),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8.0, left: 8),
+                          child: Text('Ghi chú', style: AppStyle.senH5),
+                        ),
+                        Consumer<NoteManager>(
+                            builder: (context, myModel, child) {
+                          return GestureDetector(
+                            onTap: () {
+                              context
+                                  .read<AnimationModel>()
+                                  .changeAnimation(value: false);
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(seconds: 1),
+                              curve: Curves.bounceOut,
+                              height: myModel.heightOfNoteList,
+                              child: snapshot.connectionState ==
+                                      ConnectionState.done
+                                  ? buildListNote(false, myModel.type)
+                                  : Container(),
+                            ),
+                          );
+                        }),
+                      ],
+                    )),
+              ),
+            );
+          } else {
+            return const CircularProgressIndicator();
+          }
         });
   }
 
-  Widget buildListNote(bool pin) {
+  Widget buildListNote(bool pin, int type) {
     int counterPin = context.read<NoteManager>().counterPin;
     int counter = context.read<NoteManager>().counterNote;
     if (counterPin != 0 || counter != 0) {
-      switch (widget.type) {
+      switch (type) {
         case NoteTile.TYPE_LIST:
           {
             return NoteListTile(
@@ -197,22 +215,15 @@ class _NoteTileState extends State<NoteTile> implements MediaSizeView {
     mediaSizePresenter.getMediaSize(context);
   }
 
-  void innitRemoveList() async {
+  List<int> getRemoveList() {
     String removeListString = preferences.getString(ShareKey.removeList) ?? '';
+
     if (removeListString.isNotEmpty) {
       List<String> list = removeListString.split(" ");
-
-      List<int> removeList = [];
-
-      for (int i = 0; i < list.length; i++) {
-        int element = int.parse(list[i]);
-        removeList.add(element);
-      }
-
-      context.read<NoteManager>().setRemoveList(removeList);
-    } else {
-      context.read<NoteManager>().setRemoveList([]);
+      List<int> removeList = list.map((e) => int.parse(e)).toList();
+      return removeList;
     }
+    return [];
   }
 
   @override
