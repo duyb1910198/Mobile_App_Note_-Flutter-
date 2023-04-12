@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:note/models/widget_height.dart';
 import 'package:note/values/share_keys.dart';
-import 'package:note/widget/custom_widget/mini_note_widget.dart';
 import 'package:note/widget/custom_widget/note_tile.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:note/models/note.dart';
@@ -669,6 +668,33 @@ class NoteManager with ChangeNotifier {
     return height;
   }
 
+  double getStaggeredHeight({required List<WidgetHeight> widgetHeights}) {
+    if (widgetHeights.isEmpty) {
+      return 0.0;
+    }
+    List<WidgetHeight> list = [];
+    list.addAll(widgetHeights);
+    WidgetHeight max = getMaxElement(list);
+    double sizeCheck = getHeightList(list);
+
+    if (sizeCheck - max.height <= max.height) {
+      return max.height;
+    }
+    int counter = widgetHeights.length;
+
+    double column1 = widgetHeights[0].height;
+    double column2 = 0.0;
+
+    for (int i = 1; i < counter; i++) {
+      if (column1 >= column2) {
+        column2 += widgetHeights[i].height;
+      } else {
+        column1 += widgetHeights[i].height;
+      }
+    }
+    return column1 >= column2 ? column1 : column2;
+  }
+
   double getHeightGrid(
       {required List<WidgetHeight> heights, required bool pin}) {
     if (heights.isEmpty) return 0.0;
@@ -713,33 +739,6 @@ class NoteManager with ChangeNotifier {
     notifyListeners();
   }
 
-  double getStaggeredHeight({required List<WidgetHeight> widgetHeights}) {
-    if (widgetHeights.isEmpty) {
-      return 0.0;
-    }
-    List<WidgetHeight> list = [];
-    list.addAll(widgetHeights);
-    WidgetHeight max = getMaxElement(list);
-    double sizeCheck = getHeightList(list);
-
-    if (sizeCheck - max.height <= max.height) {
-      return max.height;
-    }
-    int counter = widgetHeights.length;
-
-    double column1 = widgetHeights[0].height;
-    double column2 = 0.0;
-
-    for (int i = 1; i < counter; i++) {
-      if (column1 >= column2) {
-        column2 += widgetHeights[i].height;
-      } else {
-        column1 += widgetHeights[i].height;
-      }
-    }
-    return column1 >= column2 ? column1 : column2;
-  }
-
   setNoteLabels() {
     pinsLabel.clear();
     notesLabel.clear();
@@ -767,14 +766,6 @@ class NoteManager with ChangeNotifier {
     } else {
       return pin ? counterPin : counterNote;
     }
-  }
-
-  Widget buildNote(Note note) {
-    return MiniNoteWidget(
-      note: note,
-      pin: pin,
-      keyCheck: 0,
-    );
   }
 
   setChangeStyle({required bool style}) {

@@ -184,7 +184,7 @@ class _DrawerWidget extends State<AppDrawer> {
       setState(() {
         log('size is ${context.read<LabelManager>().labels.isNotEmpty}');
         labelsHeight =
-            (40 * context.read<LabelManager>().count()).toDouble() + 16;
+            (40 * context.read<LabelManager>().count).toDouble() + 16;
       });
     }
     return true;

@@ -125,7 +125,7 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                                   ? Container()
                                   : SizedBox(
                                       width: double.infinity,
-                                      child: Consumer<FontSizeChangnotifier>(
+                                      child: Consumer<FontSizeChangnotifier>( 
                                         builder: (context, myModel, child) {
                                           return Text(
                                             '${myModelNote.findById(widget.note.id)!.labelImages}',
@@ -300,7 +300,6 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                 height: heightTest,
                 pin: widget.pin ?? false,
                 id: widget.note.id);
-
         context.read<NoteManager>().changeStyle = false;
         context.read<NoteManager>().updateHeightId = -1;
       });

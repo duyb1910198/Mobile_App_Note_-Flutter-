@@ -26,9 +26,7 @@ class LabelManager with ChangeNotifier {
     return labels;
   }
 
-  count() {
-    return labels.length;
-  }
+  int get count => labels.length;
 
   void add({required String text, required SharedPreferences preferences}) {
     int index = _labels.indexWhere((element) => element == text);
@@ -58,17 +56,10 @@ class LabelManager with ChangeNotifier {
   }
 
   void remove({required int position, required SharedPreferences preferences}) {
-    // final index = _labels.indexWhere((element) => element == text);
     _labels.removeAt(position);
     setPreference(shareKey: ShareKey.labels, preferences: preferences, stringPreference: preferenceData());
     notifyListeners();
   }
-
-  // findById({required String id}) {
-  //   int index = labels.indexWhere((element) => )
-  // }
-
-
 
   setPreference({required String shareKey, required String stringPreference, required SharedPreferences preferences})  {
     preferences.setString(shareKey, stringPreference);
@@ -81,19 +72,6 @@ class LabelManager with ChangeNotifier {
         label += labels[i];
       } else {
         label += ' ,${labels[i]}';
-      }
-    }
-    return label;
-  }
-
-  @override
-  String toString() {
-    String label = '';
-    for(int i = 0; i < labels.length; i++) {
-      if (i == 0) {
-        label += labels[i];
-      } else {
-        label += ' ${labels[i]}';
       }
     }
     return label;

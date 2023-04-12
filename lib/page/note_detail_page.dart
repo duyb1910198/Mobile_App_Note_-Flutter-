@@ -610,11 +610,9 @@ class _NoteDetailPageState extends State<NoteDetailPage>
                     label: 'Thêm hình ảnh',
                     onTap: () {
                       _pickImage(source: ImageSource.gallery);
-                      if (widget.note.images!.isEmpty) {
-                        context
-                            .read<NoteManager>()
-                            .setUpdateHeight(id: widget.note.id);
-                      }
+                      context
+                          .read<NoteManager>()
+                          .setUpdateHeight(id: widget.note.id);
                     },
                     icon: Icons.image_outlined,
                     size: sizeOfHeight * 0.1),
