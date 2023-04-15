@@ -125,7 +125,7 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                                   ? Container()
                                   : SizedBox(
                                       width: double.infinity,
-                                      child: Consumer<FontSizeChangnotifier>( 
+                                      child: Consumer<FontSizeChangnotifier>(
                                         builder: (context, myModel, child) {
                                           return Text(
                                             '${myModelNote.findById(widget.note.id)!.labelImages}',
@@ -155,13 +155,11 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                                       height: 26,
                                       child: Consumer<NoteManager>(
                                         builder: (context, myModel, child) {
-                                          int index = myModel.notes
-                                              .indexWhere((element) =>
-                                                  element.id ==
-                                                  widget.note.id);
+                                          int index = myModel.notes.indexWhere(
+                                              (element) =>
+                                                  element.id == widget.note.id);
                                           return MasonryGridView.count(
-                                              scrollDirection:
-                                                  Axis.horizontal,
+                                              scrollDirection: Axis.horizontal,
                                               crossAxisSpacing: 2,
                                               mainAxisSpacing: 10,
                                               crossAxisCount: 1,
@@ -174,14 +172,13 @@ class MiniNoteWidgetState extends State<MiniNoteWidget>
                                                       ?.length
                                                   : 0,
                                               shrinkWrap: true,
-                                              itemBuilder: (ctx, i) =>
-                                                  buildLabelView(
-                                                      l: context
-                                                              .read<
-                                                                  LabelManager>()
-                                                              .labels[
-                                                          widget.note
-                                                              .label![i]]));
+                                              itemBuilder: (ctx, i) {
+                                                return buildLabelView(
+                                                    l: context
+                                                            .read<LabelManager>()
+                                                            .labels[
+                                                        widget.note.label![i]]);
+                                              });
                                         },
                                       )),
                             ]),

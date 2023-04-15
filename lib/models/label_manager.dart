@@ -1,6 +1,9 @@
 
+
 import 'package:flutter/cupertino.dart';
+import 'package:note/models/note_manager.dart';
 import 'package:note/values/share_keys.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LabelManager with ChangeNotifier {
@@ -28,35 +31,39 @@ class LabelManager with ChangeNotifier {
 
   int get count => labels.length;
 
-  void add({required String text, required SharedPreferences preferences}) {
+  bool add({required String text, required SharedPreferences preferences}) {
     int index = _labels.indexWhere((element) => element == text);
     if (index == -1) {
       _labels.add(text);
       setPreference(shareKey: ShareKey.labels, preferences: preferences, stringPreference: preferenceData());
       notifyListeners();
+      return true;
     }
+    return false;
   }
 
-  void update({required String text, required int id, required SharedPreferences preferences}) {
+  void update({required String text, required int id, required SharedPreferences preferences, required BuildContext context}) {
 
     int index = _labels.indexWhere((element) => element == text);
 
     if (index == -1) {
       if (text.isEmpty) {
-        remove(position: id, preferences: preferences);
+        remove(position: id, preferences: preferences, context: context);
       } else {
         _labels[id] = text;
       }
     } else {
-      remove(position: id, preferences: preferences);
+      remove(position: id, preferences: preferences, context: context);
     }
 
     setPreference(shareKey: ShareKey.labels, preferences: preferences, stringPreference: preferenceData());
     notifyListeners();
   }
 
-  void remove({required int position, required SharedPreferences preferences}) {
+  void remove({required int position, required SharedPreferences preferences, required BuildContext context}) {
+    context.read<NoteManager>().removeDeadLabel(context: context, position: position);
     _labels.removeAt(position);
+
     setPreference(shareKey: ShareKey.labels, preferences: preferences, stringPreference: preferenceData());
     notifyListeners();
   }

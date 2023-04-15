@@ -737,7 +737,6 @@ class _NoteDetailPageState extends State<NoteDetailPage>
   }
 
   void setAddNote() {
-    print('setAddNote id is ${widget.note.id}');
     context
         .read<NoteManager>()
         .setAddNote(note: widget.note);
@@ -809,7 +808,6 @@ class _NoteDetailPageState extends State<NoteDetailPage>
   removeImage({required int index}) {
     if (index < imagesWidth.length) {
       setState(() {
-        print('remove images width[$index]');
         imagesWidth.removeAt(index);
         if (widget.note.images != null) {
           widget.note.images!.removeAt(index);

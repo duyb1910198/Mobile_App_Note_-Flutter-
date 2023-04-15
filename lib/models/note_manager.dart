@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:note/models/label_manager.dart';
 import 'package:note/models/widget_height.dart';
 import 'package:note/values/share_keys.dart';
 import 'package:note/widget/custom_widget/note_tile.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:note/models/note.dart';
 
@@ -155,9 +157,8 @@ class NoteManager with ChangeNotifier {
     List<int> checkList =
         key == 0 ? checkListOfMainNote : checkListOfDeletedNotes;
     String sharedKey = key == 0 ? ShareKey.notesId : ShareKey.deleteNotesId;
-    String notesId = preferences
-            .getString(key == 0 ? sharedKey : sharedKey) ??
-        '';
+    String notesId =
+        preferences.getString(key == 0 ? sharedKey : sharedKey) ?? '';
     if (checkList.length == 1) {
       preferences.setString(sharedKey, '$id');
     } else {
@@ -172,13 +173,11 @@ class NoteManager with ChangeNotifier {
     if (checkList.isEmpty) {
       preferences.remove(sharedKey);
     } else {
-        String notesId = '';
-        for (int i = 0; i < checkList.length; i++) {
-            notesId += i == 0
-                ? '${checkList[i]}'
-                : ' ${checkList[i]}';
-        }
-        preferences.setString(sharedKey, notesId);
+      String notesId = '';
+      for (int i = 0; i < checkList.length; i++) {
+        notesId += i == 0 ? '${checkList[i]}' : ' ${checkList[i]}';
+      }
+      preferences.setString(sharedKey, notesId);
     }
   }
 
@@ -213,6 +212,10 @@ class NoteManager with ChangeNotifier {
     }
     if (index != -1) {
       notes[index] = note;
+      if (note.pin) {
+        int index = pinNotes.indexWhere((element) => element.id == note.id);
+        pinNotes[index] = note;
+      }
       setExistPin();
     }
     notifyListeners();
@@ -266,9 +269,11 @@ class NoteManager with ChangeNotifier {
 
       // preferences data
       setAddPreferences(key: 0, id: note.id);
-    } else { // update note -> check pin
+    } else {
+      // update note -> check pin
       int index = pinNotes.indexWhere((element) => element.id == note.id);
-      if (index == -1) {    // note has pin and not exist in pin notes-> add it to pin notes
+      if (index == -1) {
+        // note has pin and not exist in pin notes-> add it to pin notes
         if (note.pin) {
           pinNotes.add(note);
         }
@@ -289,7 +294,6 @@ class NoteManager with ChangeNotifier {
     Note note = removeNote(id: id, key: key);
 
     if (key == 0) {
-
       // add to deleted note
       addNote(note: note, key: 1);
       addCheckList(id: id, key: 1);
@@ -302,13 +306,13 @@ class NoteManager with ChangeNotifier {
         sizeOfPinNotes.removeAt(index);
       }
       // remove size at main note
-      int index = sizeOfMainNotes.indexWhere((element) => element.id == note.id);
+      int index =
+          sizeOfMainNotes.indexWhere((element) => element.id == note.id);
       sizeOfMainNotes.removeAt(index);
       setListSize();
     } else {
       // remove id at check list of deleted notes
-      checkListOfDeletedNotes
-          .remove(id);
+      checkListOfDeletedNotes.remove(id);
 
       if (!isMaxId(id: id)) {
         // add !maxId to removeList
@@ -803,5 +807,21 @@ class NoteManager with ChangeNotifier {
       }
     }
     return min;
+  }
+
+  removeDeadLabel({required BuildContext context, required int position}) {
+    String label = context.read<LabelManager>().labels[position];
+
+    List<Note> list = findByLabel(id: position);
+    for (int i = 0; i < list.length; i++) {
+      int index = notes.indexWhere((element) => element.id == list[i].id);
+      notes[index].label!.remove(position);
+      setPreference(shareKey: ShareKey.note + '${notes[index].id}', stringPreference: jsonEncode(notes[index]));
+      int pinIndex = pinNotes.indexWhere((element) => element.id == list[i].id);
+      if (pinIndex != -1) {
+        pinNotes[pinIndex].label!.remove(label);
+      }
+    }
+
   }
 }

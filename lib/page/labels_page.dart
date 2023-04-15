@@ -93,15 +93,18 @@ class _LabelsPageState extends State<LabelsPage> {
                   openBlankErrorDialog();
                   return;
                 }
-
                 if (!label.contains(',')) {
                   if (label.length < 15){
-                    context
+                    bool addLabel = context
                         .read<LabelManager>()
                         .add(text: label, preferences: preferences);
-                    focusList.add(focus);
-                    positions.add(false);
-                    openSuccessDialog();
+                    if (addLabel) {
+                      focusList.add(focus);
+                      positions.add(false);
+                      openSuccessDialog();
+                    } else {
+                      openOverideWarningDialog();
+                    }
                   } else {
                     openOverLengthWarningDialog();
                   }
@@ -181,7 +184,8 @@ class _LabelsPageState extends State<LabelsPage> {
                   context.read<LabelManager>().update(
                       text: controller.text,
                       id: position,
-                      preferences: preferences);
+                      preferences: preferences,
+                      context: context);
                 } else {
                   openCommaWarringDialog();
                 }
@@ -228,7 +232,7 @@ class _LabelsPageState extends State<LabelsPage> {
       setState(() {
         context
             .read<LabelManager>()
-            .remove(position: position, preferences: preferences);
+            .remove(position: position, preferences: preferences,context: context);
         positions.removeAt(position);
       });
     }
@@ -301,6 +305,18 @@ class _LabelsPageState extends State<LabelsPage> {
       showCloseIcon: true,
       title: 'Úi',
       desc: 'Nhãn không vượt quá 15 ký tự( tính cả khoảng trắng)',
+      btnCancelOnPress: () {},
+    ).show();
+  }
+
+  openOverideWarningDialog() {
+    return AwesomeDialog(
+      context: context,
+      dialogType: DialogType.warning,
+      animType: AnimType.topSlide,
+      showCloseIcon: true,
+      title: 'Úi',
+      desc: 'Nhãn đã được tạo',
       btnCancelOnPress: () {},
     ).show();
   }
