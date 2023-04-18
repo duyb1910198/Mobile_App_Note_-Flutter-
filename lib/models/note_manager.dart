@@ -214,7 +214,9 @@ class NoteManager with ChangeNotifier {
       notes[index] = note;
       if (note.pin) {
         int index = pinNotes.indexWhere((element) => element.id == note.id);
-        pinNotes[index] = note;
+        if (index != -1) {
+          pinNotes[index] = note;
+        }
       }
       setExistPin();
     }
@@ -635,8 +637,9 @@ class NoteManager with ChangeNotifier {
               return getHeightColumn(1, pin ? sizeOfPinNotes : sizeOfMainNotes);
             }
 
+
             return getStaggeredHeight(
-              widgetHeights: pin ? sizeOfPinNotes : sizeOfMainNotes,
+              widgetHeights: pin ? sizeOfPinNotes : sizeOfMainNotes
             );
           } else {
             if (labelHeights.length == 1) {
@@ -681,9 +684,10 @@ class NoteManager with ChangeNotifier {
     WidgetHeight max = getMaxElement(list);
     double sizeCheck = getHeightList(list);
 
-    if (sizeCheck - max.height <= max.height) {
-      return max.height;
-    }
+    // if (sizeCheck - max.height < max.height) {
+    //   print('widgetHeights.isEmpty $pin');
+    //   return max.height;
+    // }
     int counter = widgetHeights.length;
 
     double column1 = widgetHeights[0].height;
@@ -696,6 +700,7 @@ class NoteManager with ChangeNotifier {
         column1 += widgetHeights[i].height;
       }
     }
+
     return column1 >= column2 ? column1 : column2;
   }
 

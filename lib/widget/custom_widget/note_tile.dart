@@ -8,6 +8,7 @@ import 'package:note/models/note.dart';
 import 'package:note/models/note_manager.dart';
 import 'package:note/presenter/media_size_presenter.dart';
 import 'package:note/presenter_view/media_size_view.dart';
+import 'package:note/values/colors.dart';
 import 'package:note/values/fonts.dart';
 import 'package:note/values/share_keys.dart';
 import 'package:note/widget/custom_widget/animated_float_button_bar.dart';
