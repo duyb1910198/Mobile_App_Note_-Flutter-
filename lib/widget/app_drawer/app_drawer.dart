@@ -160,6 +160,8 @@ class _DrawerWidget extends State<AppDrawer> {
           if (context.read<RouteManager>().select != 1) {
             context.read<NoteManager>().setHasLabel(value: true, label: id);
             context.read<RouteManager>().changeSelect(id + 2);
+          } else {
+            context.read<NoteManager>().setHasLabel(value: false, label: -1);
           }
         });
       },

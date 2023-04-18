@@ -32,9 +32,11 @@ class LabelManager with ChangeNotifier {
   int get count => labels.length;
 
   bool add({required String text, required SharedPreferences preferences}) {
-    int index = _labels.indexWhere((element) => element == text);
+    int index = _labels.indexWhere((element) => element.trim() == text.trim());
+    print('index $index');
     if (index == -1) {
-      _labels.add(text);
+      print('index1 $index');
+      _labels.add(text.trim());
       setPreference(shareKey: ShareKey.labels, preferences: preferences, stringPreference: preferenceData());
       notifyListeners();
       return true;

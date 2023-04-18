@@ -747,6 +747,7 @@ class _NoteDetailPageState extends State<NoteDetailPage>
       context
           .read<NoteManager>()
           .setRemoveNote(id: widget.note.id, key: 0);
+
     }
     Navigator.pop(context);
   }
@@ -772,6 +773,9 @@ class _NoteDetailPageState extends State<NoteDetailPage>
     } else {
       if ( context.read<NoteManager>().existNote(id: widget.note.id)) {
         deleteNote();
+        context
+            .read<NoteManager>()
+            .setRemoveNote(id: widget.note.id, key: 1);
       } else {
         Navigator.pop(context);
       }
@@ -811,6 +815,9 @@ class _NoteDetailPageState extends State<NoteDetailPage>
         imagesWidth.removeAt(index);
         if (widget.note.images != null) {
           widget.note.images!.removeAt(index);
+          context
+              .read<NoteManager>()
+              .setUpdateHeight(id: widget.note.id);
         }
       });
     }

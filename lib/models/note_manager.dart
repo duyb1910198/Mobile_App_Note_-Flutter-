@@ -579,13 +579,12 @@ class NoteManager with ChangeNotifier {
   }
 
   double setSizeOfMainNotes(
-      {required int type, required bool pin, int? label = -1}) {
+      {required int type, required bool pin}) {
     List<WidgetHeight> labelHeights = [];
-    if (label != -1) {
+
+    if (hasLabel) {
       int count = pin ? counterPinLabel : counterNoteLabel;
       for (int i = 0; i < count; i++) {
-        if (notesLabel[i].id == 4) {}
-        if (notesLabel[i].id == 17) {}
         if (pin) {
           int index = sizeOfPinNotes
               .indexWhere((element) => element.id == pinsLabel[i].id);
@@ -604,7 +603,7 @@ class NoteManager with ChangeNotifier {
     switch (type) {
       case NoteTile.TYPE_LIST:
         {
-          if (label == -1) {
+          if (!hasLabel) {
             return pin
                 ? getHeightList(sizeOfPinNotes)
                 : getHeightList(sizeOfMainNotes);
@@ -614,7 +613,7 @@ class NoteManager with ChangeNotifier {
         }
       case NoteTile.TYPE_GRID:
         {
-          if (label == -1) {
+          if (!hasLabel) {
             return getHeightGrid(
                 heights: pin ? sizeOfPinNotes : sizeOfMainNotes, pin: pin);
           } else {
@@ -632,7 +631,7 @@ class NoteManager with ChangeNotifier {
           if (counter == 0) {
             return 0.0;
           }
-          if (label == -1) {
+          if (!hasLabel) {
             if (counter == 1) {
               return getHeightColumn(1, pin ? sizeOfPinNotes : sizeOfMainNotes);
             }
@@ -681,13 +680,7 @@ class NoteManager with ChangeNotifier {
     }
     List<WidgetHeight> list = [];
     list.addAll(widgetHeights);
-    WidgetHeight max = getMaxElement(list);
-    double sizeCheck = getHeightList(list);
 
-    // if (sizeCheck - max.height < max.height) {
-    //   print('widgetHeights.isEmpty $pin');
-    //   return max.height;
-    // }
     int counter = widgetHeights.length;
 
     double column1 = widgetHeights[0].height;
@@ -767,6 +760,9 @@ class NoteManager with ChangeNotifier {
         notesLabel.add(notes[noteIndex]);
       }
     }
+
+    setListSize();
+    notifyListeners();
   }
 
   counterCurrent(bool pin) {
