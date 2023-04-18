@@ -578,7 +578,7 @@ class NoteManager with ChangeNotifier {
     heightOfNoteList = setSizeOfMainNotes(type: type, pin: false);
   }
 
-  double setSizeOfMainNotes(
+  double setSizeOfMainNotes(//
       {required int type, required bool pin, int? label = -1}) {
     List<WidgetHeight> labelHeights = [];
     if (label != -1) {
